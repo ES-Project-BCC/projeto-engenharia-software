@@ -17,16 +17,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * Filter que intercepta TODAS as requisicoes (uma vez por request, daí o
- * OncePerRequestFilter) para checar se veio um token JWT valido no header
- * Authorization. Se vier e for valido, autentica o usuario no
- * SecurityContext para o restante da cadeia de filtros/controllers.
- *
- * Se nao vier token, ou o token for invalido, simplesmente deixa a
- * requisicao seguir sem autenticacao - quem decide se isso e permitido
- * ou nao e o SecurityFilterChain (rota publica vs. rota protegida).
- */
+
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
@@ -58,8 +49,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             String email = jwtUtil.extractEmail(token);
 
-            // So autentica se ainda nao houver autenticacao no contexto
-            // (evita trabalho repetido se algo mais cedo ja autenticou).
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
@@ -71,9 +60,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception ex) {
-            // Token malformado/expirado/assinatura invalida: nao autentica
-            // e deixa a requisicao seguir - vai bater no SecurityFilterChain
-            // como nao autenticada e ser barrada la se a rota exigir login.
             SecurityContextHolder.clearContext();
         }
 
