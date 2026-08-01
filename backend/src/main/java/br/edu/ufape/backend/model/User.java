@@ -14,11 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Entidade que representa um usuário do sistema.
- * A senha é sempre armazenada com hash (BCrypt), nunca em texto puro —
- * quem garante isso é o AuthService, não esta classe.
- */
 @Entity
 @Table(name = "users")
 @Getter
