@@ -24,8 +24,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // O Spring Security espera o prefixo "ROLE_" para checagens
-        // como hasRole("ADMIN") funcionarem no SecurityConfig.
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
@@ -36,7 +34,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        // Usamos o email como "username" de login
         return user.getEmail();
     }
 
