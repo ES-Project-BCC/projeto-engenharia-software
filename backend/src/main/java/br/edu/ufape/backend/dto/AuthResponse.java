@@ -2,11 +2,6 @@ package br.edu.ufape.backend.dto;
 
 import br.edu.ufape.backend.model.Role;
 
-/**
- * Retornado no login: o token JWT que o front vai guardar e mandar
- * no header Authorization das próximas requisições, mais alguns
- * dados básicos pra a UI já saber quem é o usuário sem decodificar o token.
- */
 public class AuthResponse {
 
     private String token;
