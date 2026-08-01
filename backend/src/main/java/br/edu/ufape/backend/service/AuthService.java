@@ -16,11 +16,6 @@ import br.edu.ufape.backend.model.User;
 import br.edu.ufape.backend.repository.UserRepository;
 import br.edu.ufape.backend.security.JwtUtil;
 
-/**
- * Concentra a logica de negocio de autenticacao: registrar um novo usuario
- * e autenticar um usuario existente, sempre devolvendo um AuthResponse
- * pronto (com token) para o AuthController repassar ao frontend.
- */
 @Service
 public class AuthService {
 
