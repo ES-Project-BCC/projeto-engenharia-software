@@ -44,7 +44,6 @@ public class AuthService {
         User user = User.builder()
                 .nome(request.getNome())
                 .email(request.getEmail())
-                // NUNCA salvamos a senha em texto puro - sempre passa pelo BCrypt antes
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
                 .build();
@@ -58,9 +57,6 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         try {
-            // Delega ao Spring Security: por baixo dos panos ele usa o
-            // UserDetailsServiceImpl para buscar o usuario e o PasswordEncoder
-            // para comparar a senha informada com o hash salvo no banco.
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
