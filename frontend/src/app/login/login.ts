@@ -22,8 +22,7 @@ export class Login {
   onSubmit() {
     this.authService.login(this.loginData).subscribe({
       next: () => {
-        // Deu bom, manda o usuario pra home
-        this.router.navigate(['/']);
+        this.router.navigate(['/home']);
       },
       error: (err) => {
         console.error('Erro no login', err);

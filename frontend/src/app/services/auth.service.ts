@@ -11,10 +11,9 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  login(credentials: any): Observable<any> {
-    return this.http.post<{token: string}>(`${this.apiUrl}/login`, credentials).pipe(
+  login(credentials: { email: string; password: string }): Observable<any> {
+    return this.http.post<{ token: string }>(`${this.apiUrl}/api/auth/login`, credentials).pipe(
       tap(response => {
-        // Salva o token no navegador se a api retornar sucesso
         if (response?.token) {
           localStorage.setItem('jwt_token', response.token);
         }
@@ -23,7 +22,7 @@ export class AuthService {
   }
 
   registro(dados: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/registro`, dados);
+    return this.http.post(`${this.apiUrl}/api/auth/register`, dados);
   }
 
   logout(): void {
