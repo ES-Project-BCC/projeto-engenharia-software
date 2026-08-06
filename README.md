@@ -105,18 +105,6 @@ Na inicialização, o sistema cria automaticamente um usuário administrador pad
 | `POST` | `/api/auth/logout` | Encerra a sessão no servidor | Autenticado |
 | `GET` | `/api/admin/**` | Rotas exclusivas para administradores | Role ADMIN |
 
----
 
-## Testes
-
-### Frontend
-```bash
-cd frontend
-ng test --watch=false
-```
-
-### Backend
-```bash
-cd backend
 .\mvnw test
 ```
