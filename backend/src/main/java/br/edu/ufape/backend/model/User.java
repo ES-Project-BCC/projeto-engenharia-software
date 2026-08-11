@@ -1,5 +1,6 @@
 package br.edu.ufape.backend.model;
 
+import br.edu.ufape.backend.model.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

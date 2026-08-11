@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import br.edu.ufape.backend.model.Role;
+import br.edu.ufape.backend.model.enums.Role;
 import br.edu.ufape.backend.model.User;
 import br.edu.ufape.backend.repository.UserRepository;
 

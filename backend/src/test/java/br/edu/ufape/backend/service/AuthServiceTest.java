@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.edu.ufape.backend.dto.LoginRequest;
-import br.edu.ufape.backend.model.Role;
+import br.edu.ufape.backend.model.enums.Role;
 import br.edu.ufape.backend.model.User;
 import br.edu.ufape.backend.repository.UserRepository;
 import br.edu.ufape.backend.security.JwtUtil;

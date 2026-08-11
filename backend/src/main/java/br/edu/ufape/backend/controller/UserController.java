@@ -1,5 +1,6 @@
 package br.edu.ufape.backend.controller;
 
+import br.edu.ufape.backend.model.enums.Role;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,5 +26,5 @@ public class UserController {
         return "pong - voce e ADMIN";
     }
 
-    public record MeResponse(Long id, String nome, String email, br.edu.ufape.backend.model.Role role) {}
+    public record MeResponse(Long id, String nome, String email, Role role) {}
 }

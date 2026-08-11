@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import br.edu.ufape.backend.dto.AuthResponse;
 import br.edu.ufape.backend.dto.LoginRequest;
 import br.edu.ufape.backend.dto.RegisterRequest;
-import br.edu.ufape.backend.model.Role;
+import br.edu.ufape.backend.model.enums.Role;
 import br.edu.ufape.backend.model.User;
 import br.edu.ufape.backend.repository.UserRepository;
 import br.edu.ufape.backend.security.JwtUtil;

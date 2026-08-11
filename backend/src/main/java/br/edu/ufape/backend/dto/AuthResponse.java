@@ -1,6 +1,6 @@
 package br.edu.ufape.backend.dto;
 
-import br.edu.ufape.backend.model.Role;
+import br.edu.ufape.backend.model.enums.Role;
 
 public class AuthResponse {
 
