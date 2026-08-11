@@ -22,7 +22,9 @@ public class ResourceService {
                 .descricao(request.getDescricao())
                 .capacidade(request.getCapacidade())
                 .tipo(request.getTipo())
-                .statusFuncionamento(request.getStatusFuncionamento())
+                .statusFuncionamento(
+                        request.getStatusFuncionamento() != null ? request.getStatusFuncionamento() : true)
+
                 .build();
 
         resource = resourceRepository.save(resource);
