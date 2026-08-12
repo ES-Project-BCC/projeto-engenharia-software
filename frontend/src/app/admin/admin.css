@@ -44,6 +44,24 @@
 
 .admin-body {
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.btn-action {
+  display: block;
+  background-color: #0056b3;
+  color: white;
+  text-decoration: none;
+  padding: 14px 20px;
+  border: 1px solid #004494;
+  font-size: 15px;
+  text-align: center;
+}
+
+.btn-action:hover {
+  background-color: #004494;
 }
 
 .admin-footer {

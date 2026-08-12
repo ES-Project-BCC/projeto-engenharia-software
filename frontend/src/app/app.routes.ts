@@ -3,6 +3,7 @@ import { Login } from './login/login';
 import { Registro } from './registro/registro';
 import { Home } from './home/home';
 import { Admin } from './admin/admin';
+import { CadastroRecurso } from './cadastro-recurso/cadastro-recurso';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 
@@ -14,6 +15,12 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: Admin,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'cadastro-recurso',
+    component: CadastroRecurso,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ADMIN'] }
   }

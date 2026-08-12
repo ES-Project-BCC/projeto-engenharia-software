@@ -1,0 +1,127 @@
+<div class="page-container">
+  <div class="form-card">
+
+    <div class="card-header">
+      <a routerLink="/admin" class="btn-back">← Voltar ao Painel</a>
+      <div class="header-content">
+        <div class="header-icon">📦</div>
+        <h1>Cadastrar Recurso</h1>
+        <p>Preencha as informações do novo recurso</p>
+      </div>
+    </div>
+
+    <!-- aviso q deu certo -->
+    <div class="alert alert-success" *ngIf="successMessage">
+      <span class="alert-icon">✅</span>
+      {{ successMessage }}
+    </div>
+
+    <!-- se der ruim aparece isso aqui -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <span class="alert-icon">❌</span>
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #recursoForm="ngForm" class="resource-form">
+
+      <!-- campo de nome -->
+      <div class="form-group">
+        <label for="nome">Nome do Recurso <span class="required">*</span></label>
+        <input
+          type="text"
+          id="nome"
+          name="nome"
+          [(ngModel)]="recursoData.nome"
+          required
+          maxlength="100"
+          placeholder="Ex: Laboratório de Computação A"
+          #nome="ngModel">
+        <div class="error-message" *ngIf="nome.invalid && (nome.dirty || nome.touched)">
+          O nome do recurso é obrigatório.
+        </div>
+      </div>
+
+      <!-- campo de descricao -->
+      <div class="form-group">
+        <label for="descricao">
+          Descrição <span class="required">*</span>
+          <span class="char-counter" [class.counter-warn]="descricaoLength > 450">
+            {{ descricaoLength }}/500
+          </span>
+        </label>
+        <textarea
+          id="descricao"
+          name="descricao"
+          [(ngModel)]="recursoData.descricao"
+          required
+          maxlength="500"
+          rows="4"
+          placeholder="Descreva o recurso, sua finalidade e características..."
+          #descricao="ngModel">
+        </textarea>
+        <div class="error-message" *ngIf="descricao.invalid && (descricao.dirty || descricao.touched)">
+          A descrição é obrigatória.
+        </div>
+      </div>
+
+      <!-- coloquei tipo e capaciade na mesma linha pra ficar mais bonitinho kkk -->
+      <div class="form-row">
+
+        <!-- select do tipo -->
+        <div class="form-group">
+          <label for="tipo">Tipo <span class="required">*</span></label>
+          <select
+            id="tipo"
+            name="tipo"
+            [(ngModel)]="recursoData.tipo"
+            required
+            #tipo="ngModel">
+            <option value="LABORATORIO">Laboratório</option>
+            <option value="EQUIPAMENTO">Equipamento</option>
+          </select>
+          <div class="error-message" *ngIf="tipo.invalid && (tipo.dirty || tipo.touched)">
+            Selecione o tipo do recurso.
+          </div>
+        </div>
+
+        <!-- input de capacidade -->
+        <div class="form-group">
+          <label for="capacidade">Capacidade <span class="optional">(opcional)</span></label>
+          <input
+            type="number"
+            id="capacidade"
+            name="capacidade"
+            [(ngModel)]="recursoData.capacidade"
+            min="0"
+            placeholder="Ex: 30">
+        </div>
+
+      </div>
+
+      <!-- status de func -->
+      <div class="form-group">
+        <label for="statusFuncionamento">Status de Funcionamento</label>
+        <select
+          id="statusFuncionamento"
+          name="statusFuncionamento"
+          [(ngModel)]="recursoData.statusFuncionamento">
+          <option [ngValue]="true">✅ Em funcionamento</option>
+          <option [ngValue]="false">❌ Fora de funcionamento</option>
+        </select>
+      </div>
+
+      <!-- botoes de baixo -->
+      <div class="form-actions">
+        <a routerLink="/admin" class="btn-secondary">Cancelar</a>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="recursoForm.invalid || isLoading">
+          <span *ngIf="!isLoading">Cadastrar Recurso</span>
+          <span *ngIf="isLoading">Cadastrando...</span>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
