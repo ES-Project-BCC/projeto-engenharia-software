@@ -27,4 +27,8 @@ export class ResourceService {
   criarRecurso(recurso: ResourceRequest): Observable<ResourceResponse> {
     return this.http.post<ResourceResponse>(`${this.apiUrl}/api/resources`, recurso);
   }
+
+  listarRecursos(): Observable<ResourceResponse[]> {
+    return this.http.get<ResourceResponse[]>(`${this.apiUrl}/api/resources`);
+  }
 }

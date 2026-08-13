@@ -1,0 +1,47 @@
+<div class="page-container">
+  <div class="list-card">
+
+    <div class="card-header">
+      <a routerLink="/home" class="btn-back">← Voltar</a>
+      <div class="header-content">
+        <div class="header-icon">🗂️</div>
+        <h1>Recursos Disponíveis</h1>
+        <p>Laboratórios e equipamentos disponíveis para reserva</p>
+      </div>
+    </div>
+
+    <!-- carregando -->
+    <div class="state-message" *ngIf="isLoading">
+      Carregando recursos...
+    </div>
+
+    <!-- deu erro -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <span class="alert-icon">❌</span>
+      {{ errorMessage }}
+    </div>
+
+    <!-- lista vazia -->
+    <div class="state-message" *ngIf="!isLoading && !errorMessage && recursos.length === 0">
+      Nenhum recurso disponível no momento.
+    </div>
+
+    <!-- lista de recursos -->
+    <div class="resource-grid" *ngIf="!isLoading && recursos.length > 0">
+      <div class="resource-item" *ngFor="let recurso of recursos">
+        <div class="resource-item-header">
+          <span class="resource-tipo" [class.tipo-lab]="recurso.tipo === 'LABORATORIO'" [class.tipo-equip]="recurso.tipo === 'EQUIPAMENTO'">
+            {{ recurso.tipo === 'LABORATORIO' ? 'Laboratório' : 'Equipamento' }}
+          </span>
+          <span class="resource-status">✅ Disponível</span>
+        </div>
+        <h3>{{ recurso.nome }}</h3>
+        <p class="resource-descricao">{{ recurso.descricao }}</p>
+        <p class="resource-capacidade" *ngIf="recurso.capacidade">
+          👥 Capacidade: {{ recurso.capacidade }}
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
