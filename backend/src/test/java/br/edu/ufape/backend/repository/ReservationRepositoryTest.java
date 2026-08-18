@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +32,9 @@ class ReservationRepositoryTest {
 
     private Resource resource;
     private User user;
+
+    private static final List<StatusReserva> STATUS_ATIVOS =
+            List.of(StatusReserva.PENDENTE, StatusReserva.CONFIRMADA);
 
     @BeforeEach
     void setUp() {
@@ -53,56 +57,120 @@ class ReservationRepositoryTest {
         entityManager.persist(resource);
     }
 
-    @Test
-    @DisplayName("deve retornar true quando existe reserva com horário conflitante")
-    void shouldReturnTrueWhenReservationOverlapExists() {
-        Reservation existing = Reservation.builder()
+    private void persistReservation(LocalDate data, LocalTime inicio, LocalTime fim, StatusReserva status) {
+        Reservation reservation = Reservation.builder()
                 .resource(resource)
                 .user(user)
-                .data(LocalDate.of(2026, 8, 12))
-                .horarioInicio(LocalTime.of(10, 0))
-                .horarioFim(LocalTime.of(11, 0))
-                .status(StatusReserva.PENDENTE)
+                .data(data)
+                .horarioInicio(inicio)
+                .horarioFim(fim)
+                .status(status)
                 .build();
-        entityManager.persist(existing);
+        entityManager.persist(reservation);
         entityManager.flush();
-
-        // nova reserva 10:30 a 11:30 — deve conflitar com a existente 10:00-11:00
-        // o servico passa (horarioFim, horarioInicio) da nova reserva pra esse metodo
-        boolean conflict = reservationRepository
-                .existsByResourceAndDataAndHorarioInicioLessThanAndHorarioFimGreaterThan(
-                        resource,
-                        LocalDate.of(2026, 8, 12),
-                        LocalTime.of(11, 30), // fim da nova reserva
-                        LocalTime.of(10, 30)  // inicio da nova reserva
-                );
-
-        assertThat(conflict).isTrue();
     }
 
     @Test
-    @DisplayName("deve retornar false quando não existe reserva com horário conflitante")
-    void shouldReturnFalseWhenNoReservationOverlapExists() {
-        Reservation existing = Reservation.builder()
-                .resource(resource)
-                .user(user)
-                .data(LocalDate.of(2026, 8, 12))
-                .horarioInicio(LocalTime.of(8, 0))
-                .horarioFim(LocalTime.of(9, 0))
-                .status(StatusReserva.PENDENTE)
-                .build();
-        entityManager.persist(existing);
-        entityManager.flush();
+    @DisplayName("deve retornar o id do recurso quando existe reserva com horário conflitante")
+    void shouldReturnResourceIdWhenReservationOverlapExists() {
+        persistReservation(LocalDate.of(2026, 8, 12), LocalTime.of(10, 0), LocalTime.of(11, 0), StatusReserva.PENDENTE);
+
+        // nova reserva 10:30 a 11:30 — deve conflitar com a existente 10:00-11:00
+        List<Long> conflitantes = reservationRepository.findConflictingResourceIds(
+                LocalDate.of(2026, 8, 12),
+                LocalTime.of(10, 30),
+                LocalTime.of(11, 30),
+                STATUS_ATIVOS);
+
+        assertThat(conflitantes).containsExactly(resource.getId());
+    }
+
+    @Test
+    @DisplayName("não deve retornar conflito quando não existe reserva com horário conflitante")
+    void shouldNotReturnConflictWhenNoReservationOverlapExists() {
+        persistReservation(LocalDate.of(2026, 8, 12), LocalTime.of(8, 0), LocalTime.of(9, 0), StatusReserva.PENDENTE);
 
         // nova reserva 9:00 a 10:00 — adjacente, nao deve conflitar
-        boolean conflict = reservationRepository
-                .existsByResourceAndDataAndHorarioInicioLessThanAndHorarioFimGreaterThan(
-                        resource,
-                        LocalDate.of(2026, 8, 12),
-                        LocalTime.of(10, 0), // fim da nova reserva
-                        LocalTime.of(9, 0)   // inicio da nova reserva
-                );
+        List<Long> conflitantes = reservationRepository.findConflictingResourceIds(
+                LocalDate.of(2026, 8, 12),
+                LocalTime.of(9, 0),
+                LocalTime.of(10, 0),
+                STATUS_ATIVOS);
 
-        assertThat(conflict).isFalse();
+        assertThat(conflitantes).isEmpty();
+    }
+
+    @Test
+    @DisplayName("deve detectar conflito quando a reserva é idêntica")
+    void shouldDetectConflict_whenReservationIsIdentical() {
+        persistReservation(LocalDate.of(2026, 8, 12), LocalTime.of(10, 0), LocalTime.of(11, 0), StatusReserva.PENDENTE);
+
+        List<Long> conflitantes = reservationRepository.findConflictingResourceIds(
+                LocalDate.of(2026, 8, 12),
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0),
+                STATUS_ATIVOS);
+
+        assertThat(conflitantes).containsExactly(resource.getId());
+    }
+
+    @Test
+    @DisplayName("deve detectar conflito quando a nova reserva está totalmente contida na existente")
+    void shouldDetectConflict_whenNewReservationIsContainedInExisting() {
+        // existente: 09:00 - 12:00 (janela ampla)
+        persistReservation(LocalDate.of(2026, 8, 12), LocalTime.of(9, 0), LocalTime.of(12, 0), StatusReserva.PENDENTE);
+
+        // nova: 10:00 - 11:00 (totalmente dentro da existente)
+        List<Long> conflitantes = reservationRepository.findConflictingResourceIds(
+                LocalDate.of(2026, 8, 12),
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0),
+                STATUS_ATIVOS);
+
+        assertThat(conflitantes).containsExactly(resource.getId());
+    }
+
+    @Test
+    @DisplayName("deve detectar conflito quando a nova reserva engloba totalmente a existente")
+    void shouldDetectConflict_whenNewReservationEnglobesExisting() {
+        // existente: 10:00 - 11:00 (janela estreita)
+        persistReservation(LocalDate.of(2026, 8, 12), LocalTime.of(10, 0), LocalTime.of(11, 0), StatusReserva.PENDENTE);
+
+        // nova: 09:00 - 12:00 (engloba totalmente a existente)
+        List<Long> conflitantes = reservationRepository.findConflictingResourceIds(
+                LocalDate.of(2026, 8, 12),
+                LocalTime.of(9, 0),
+                LocalTime.of(12, 0),
+                STATUS_ATIVOS);
+
+        assertThat(conflitantes).containsExactly(resource.getId());
+    }
+
+    @Test
+    @DisplayName("não deve retornar conflito quando a única reserva no período está cancelada")
+    void shouldNotConflict_whenOnlyReservationIsCancelled() {
+        persistReservation(LocalDate.of(2026, 8, 12), LocalTime.of(10, 0), LocalTime.of(11, 0), StatusReserva.CANCELADA);
+
+        List<Long> conflitantes = reservationRepository.findConflictingResourceIds(
+                LocalDate.of(2026, 8, 12),
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0),
+                STATUS_ATIVOS);
+
+        assertThat(conflitantes).isEmpty();
+    }
+
+    @Test
+    @DisplayName("deve detectar conflito quando a reserva está confirmada")
+    void shouldDetectConflict_whenReservationIsConfirmada() {
+        persistReservation(LocalDate.of(2026, 8, 12), LocalTime.of(10, 0), LocalTime.of(11, 0), StatusReserva.CONFIRMADA);
+
+        List<Long> conflitantes = reservationRepository.findConflictingResourceIds(
+                LocalDate.of(2026, 8, 12),
+                LocalTime.of(10, 0),
+                LocalTime.of(11, 0),
+                STATUS_ATIVOS);
+
+        assertThat(conflitantes).containsExactly(resource.getId());
     }
 }

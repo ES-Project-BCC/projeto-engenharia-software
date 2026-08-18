@@ -1,7 +1,6 @@
 package br.edu.ufape.backend.repository;
 
 import br.edu.ufape.backend.model.Reservation;
-import br.edu.ufape.backend.model.Resource;
 import br.edu.ufape.backend.model.enums.StatusReserva;
 import br.edu.ufape.backend.model.User;
 import org.springframework.data.domain.Page;
@@ -17,12 +16,6 @@ import java.util.List;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-
-    boolean existsByResourceAndDataAndHorarioInicioLessThanAndHorarioFimGreaterThan(
-            Resource resource,
-            LocalDate data,
-            LocalTime horarioInicio,
-            LocalTime horarioFim);
 
     @Query("SELECT r.resource.id FROM Reservation r " +
             "WHERE r.data = :data " +
