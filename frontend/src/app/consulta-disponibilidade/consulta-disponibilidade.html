@@ -1,0 +1,143 @@
+<div class="page-container">
+  <div class="form-card">
+
+    <!-- Cabeçalho -->
+    <div class="card-header">
+      <a routerLink="/home" class="btn-back">← Voltar</a>
+      <div class="header-content">
+        <div class="header-icon">🔍</div>
+        <h1>Consultar Disponibilidade</h1>
+        <p>Verifique quais recursos estão disponíveis no período desejado</p>
+      </div>
+    </div>
+
+    <!-- Formulário de consulta -->
+    <form class="consulta-form" (ngSubmit)="consultar()">
+
+      <div class="form-group">
+        <label for="data">
+          📅 Data <span class="required">*</span>
+        </label>
+        <input
+          id="data"
+          type="date"
+          [(ngModel)]="data"
+          name="data"
+          required
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="horarioInicio">
+            🕐 Horário Início <span class="required">*</span>
+          </label>
+          <input
+            id="horarioInicio"
+            type="time"
+            [(ngModel)]="horarioInicio"
+            name="horarioInicio"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="horarioFim">
+            🕑 Horário Fim <span class="required">*</span>
+          </label>
+          <input
+            id="horarioFim"
+            type="time"
+            [(ngModel)]="horarioFim"
+            name="horarioFim"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Erro de validação -->
+      @if (erro) {
+        <div class="alert alert-error">
+          <span class="alert-icon">⚠️</span>
+          <span>{{ erro }}</span>
+        </div>
+      }
+
+      <!-- Ações -->
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="limpar()" id="btn-limpar">
+          Limpar
+        </button>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="carregando"
+          id="btn-consultar"
+        >
+          @if (carregando) {
+            Consultando...
+          } @else {
+            Consultar
+          }
+        </button>
+      </div>
+    </form>
+
+    <!-- Resultados -->
+    @if (consultado && !carregando) {
+      <div class="resultados-section">
+        <div class="resultados-header">
+          <h2>Resultados</h2>
+          <div class="resumo-badges">
+            <span class="badge-disponivel">✅ {{ disponiveis.length }} disponíveis</span>
+            <span class="badge-ocupado">❌ {{ indisponiveis.length }} ocupados</span>
+          </div>
+        </div>
+
+        @if (resultados.length === 0) {
+          <div class="empty-state">
+            <span>📭</span>
+            <p>Nenhum recurso cadastrado no sistema.</p>
+          </div>
+        } @else {
+          <table class="tabela-resultados">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Capacidade</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (recurso of resultados; track recurso.id) {
+                <tr [class.linha-disponivel]="recurso.disponivel" [class.linha-ocupado]="!recurso.disponivel">
+                  <td class="nome-cell">{{ recurso.nome }}</td>
+                  <td>
+                    <span class="tipo-badge" [class.tipo-lab]="recurso.tipo === 'LABORATORIO'" [class.tipo-equip]="recurso.tipo === 'EQUIPAMENTO'">
+                      {{ tipoLabel(recurso.tipo) }}
+                    </span>
+                  </td>
+                  <td class="capacidade-cell">
+                    @if (recurso.capacidade) {
+                      {{ recurso.capacidade }} pessoas
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>
+                    @if (recurso.disponivel) {
+                      <span class="status-disponivel">✅ Disponível</span>
+                    } @else {
+                      <span class="status-ocupado">❌ Ocupado</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    }
+
+  </div>
+</div>

@@ -1,0 +1,106 @@
+<div class="page-container">
+  <div class="form-card">
+
+    <div class="card-header">
+      <a routerLink="/recursos" class="btn-back">← Voltar aos Recursos</a>
+      <div class="header-content">
+        <div class="header-icon">📋</div>
+        <h1>Solicitar Reserva</h1>
+        <p *ngIf="recurso">{{ recurso.nome }}</p>
+        <p *ngIf="!recurso && !isLoadingRecurso">Recurso não encontrado</p>
+        <p *ngIf="isLoadingRecurso">Carregando...</p>
+      </div>
+    </div>
+
+    <!-- card com info do recurso -->
+    <div class="recurso-info" *ngIf="recurso">
+      <div class="info-badge" [class.tipo-lab]="recurso.tipo === 'LABORATORIO'" [class.tipo-equip]="recurso.tipo === 'EQUIPAMENTO'">
+        {{ recurso.tipo === 'LABORATORIO' ? 'Laboratório' : 'Equipamento' }}
+      </div>
+      <p class="info-descricao">{{ recurso.descricao }}</p>
+      <p class="info-capacidade" *ngIf="recurso.capacidade != null">
+        👥 Capacidade: {{ recurso.capacidade }} pessoas
+      </p>
+    </div>
+
+    <!-- aviso de sucesso (task #49 - feedback de confirmação) -->
+    <div class="alert alert-success" *ngIf="successMessage">
+      <span class="alert-icon">✅</span>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <!-- aviso de erro -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <span class="alert-icon">❌</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- formulario de reserva (task #48) -->
+    <form (ngSubmit)="onSubmit()" #reservaForm="ngForm" class="reserva-form" *ngIf="recurso">
+
+      <!-- campo data -->
+      <div class="form-group">
+        <label for="data">Data da Reserva <span class="required">*</span></label>
+        <input
+          type="date"
+          id="data"
+          name="data"
+          [(ngModel)]="reservaData.data"
+          required
+          #data="ngModel">
+        <div class="error-message" *ngIf="data.invalid && (data.dirty || data.touched)">
+          A data é obrigatória.
+        </div>
+      </div>
+
+      <!-- horarios lado a lado -->
+      <div class="form-row">
+
+        <!-- horario inicio -->
+        <div class="form-group">
+          <label for="horarioInicio">Horário de Início <span class="required">*</span></label>
+          <input
+            type="time"
+            id="horarioInicio"
+            name="horarioInicio"
+            [(ngModel)]="reservaData.horarioInicio"
+            required
+            #horarioInicio="ngModel">
+          <div class="error-message" *ngIf="horarioInicio.invalid && (horarioInicio.dirty || horarioInicio.touched)">
+            Horário de início é obrigatório.
+          </div>
+        </div>
+
+        <!-- horario fim -->
+        <div class="form-group">
+          <label for="horarioFim">Horário de Fim <span class="required">*</span></label>
+          <input
+            type="time"
+            id="horarioFim"
+            name="horarioFim"
+            [(ngModel)]="reservaData.horarioFim"
+            required
+            #horarioFim="ngModel">
+          <div class="error-message" *ngIf="horarioFim.invalid && (horarioFim.dirty || horarioFim.touched)">
+            Horário de fim é obrigatório.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- botoes -->
+      <div class="form-actions">
+        <a routerLink="/recursos" class="btn-secondary">Cancelar</a>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="reservaForm.invalid || isLoading">
+          <span *ngIf="!isLoading">Solicitar Reserva</span>
+          <span *ngIf="isLoading">Enviando...</span>
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>

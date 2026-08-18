@@ -1,0 +1,300 @@
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background-color: #f4f4f4;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Box principal */
+.form-card {
+  background: white;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 680px;
+}
+
+/* Cabeçalho azul */
+.card-header {
+  background-color: #0056b3;
+  color: white;
+  padding: 20px;
+}
+
+.btn-back {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 13px;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.btn-back:hover {
+  color: white;
+}
+
+.header-content {
+  text-align: center;
+}
+
+.header-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.card-header h1 {
+  font-size: 22px;
+  margin: 0 0 4px;
+}
+
+.card-header p {
+  font-size: 13px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Formulário */
+.consulta-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #eee;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.required {
+  color: #dc3545;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #0056b3;
+}
+
+/* Horários lado a lado */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Alertas */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  border-left: 4px solid;
+  margin-bottom: 12px;
+}
+
+.alert-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #dc3545;
+}
+
+/* Ações */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.btn-primary {
+  background-color: #0056b3;
+  color: white;
+  border: 1px solid #004494;
+  padding: 10px 24px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #004494;
+}
+
+.btn-primary:disabled {
+  background-color: #7a9cc9;
+  border-color: #7a9cc9;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: white;
+  color: #555;
+  border: 1px solid #ccc;
+  padding: 10px 24px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background-color: #f5f5f5;
+}
+
+/* Seção de resultados */
+.resultados-section {
+  padding: 0;
+}
+
+.resultados-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #eee;
+  background-color: #f8f9fa;
+}
+
+.resultados-header h2 {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.resumo-badges {
+  display: flex;
+  gap: 10px;
+}
+
+.badge-disponivel,
+.badge-ocupado {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 10px;
+}
+
+.badge-disponivel {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge-ocupado {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Tabela */
+.tabela-resultados {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela-resultados thead tr {
+  background-color: #333;
+  color: white;
+}
+
+.tabela-resultados th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabela-resultados td {
+  padding: 12px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+  color: #333;
+}
+
+.linha-disponivel {
+  background-color: #f8fff9;
+}
+
+.linha-ocupado {
+  background-color: #fff8f8;
+}
+
+.nome-cell {
+  font-weight: bold;
+}
+
+.capacidade-cell {
+  color: #666;
+}
+
+/* Badges de tipo */
+.tipo-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
+.tipo-lab {
+  background-color: #d4e6f7;
+  color: #0056b3;
+}
+
+.tipo-equip {
+  background-color: #eee0f7;
+  color: #6f2da8;
+}
+
+/* Status */
+.status-disponivel {
+  font-size: 13px;
+  font-weight: bold;
+  color: #155724;
+}
+
+.status-ocupado {
+  font-size: 13px;
+  font-weight: bold;
+  color: #721c24;
+}
+
+/* Estado vazio */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  color: #999;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.empty-state span {
+  font-size: 40px;
+}

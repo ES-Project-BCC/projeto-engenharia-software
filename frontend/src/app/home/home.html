@@ -11,8 +11,10 @@
       </div>
     </div>
 
-    <div class="home-body" *ngIf="isAdmin">
-      <a routerLink="/admin" class="btn-admin">Acessar Painel Admin →</a>
+    <div class="home-body">
+      <a routerLink="/recursos" class="btn-admin">Ver Recursos Disponíveis →</a>
+      <a routerLink="/disponibilidade" class="btn-admin">Consultar Disponibilidade →</a>
+      <a routerLink="/admin" class="btn-admin" *ngIf="isAdmin">Acessar Painel Admin →</a>
     </div>
 
     <div class="home-footer">
