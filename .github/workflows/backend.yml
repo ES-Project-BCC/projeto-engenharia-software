@@ -57,7 +57,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           chmod +x mvnw
-          ./mvnw sonar:sonar \
+          ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=ES-Project-BCC_projeto-engenharia-software \
             -Dsonar.organization=es-project-bcc \
             -Dsonar.host.url=https://sonarcloud.io \
