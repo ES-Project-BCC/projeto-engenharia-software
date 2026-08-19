@@ -6,14 +6,14 @@ A Plataforma de Reserva de Laboratórios e Equipamentos é uma solução desenvo
 
 ---
 
-## 🚀 Ambiente de Produção (Render)
+## Deploy
 
-| Serviço | URL |
+| | URL |
 |---|---|
-| **Frontend** | https://frontend-reservas.onrender.com |
-| **Backend (API)** | https://backend-reservas-8gvn.onrender.com |
+| Frontend | https://frontend-reservas.onrender.com |
+| Backend | https://backend-reservas-8gvn.onrender.com |
 
-> ⚠️ O plano gratuito do Render hiberna após inatividade. A primeira requisição pode demorar até 50 segundos para "acordar" o serviço.
+> O plano free do Render hiberna por inatividade, a primeira requisição pode demorar um pouco.
 
 ---
 
