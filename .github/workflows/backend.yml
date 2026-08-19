@@ -1,6 +1,5 @@
 name: Backend CI
 
-# Roda automaticamente em qualquer push ou PR pra main
 on:
   push:
     branches: [ main ]
@@ -18,21 +17,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Baixa o codigo do repositorio
       - name: Checkout do codigo
         uses: actions/checkout@v4
         with:
-          # Necessario para o SonarCloud calcular a cobertura corretamente
           fetch-depth: 0
 
-      # 2. Configura o Java
       - name: Configura JDK
         uses: actions/setup-java@v4
         with:
           java-version: '26'
           distribution: 'temurin'
 
-      # 3. Cache do Maven pra nao baixar tudo toda vez (fica mais rapido)
       - name: Cache do repositorio Maven
         uses: actions/cache@v4
         with:
@@ -41,23 +36,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 4. Roda os testes E gera o relatorio JaCoCo (o -P test ativa o perfil de teste com H2)
       - name: Roda testes e gera relatorio JaCoCo
         working-directory: backend
         run: |
           chmod +x mvnw
           ./mvnw verify -Dspring.profiles.active=test -B
 
-      # 5. Envia o codigo e o relatorio de cobertura pro SonarCloud
-      # O SONAR_TOKEN precisa estar configurado nos Secrets do repositorio no GitHub
+      # SonarCloud so roda no push pra main (nao em PRs de forks)
+      # porque o GitHub bloqueia secrets em PRs de forks por seguranca
       - name: Analise SonarCloud
+        if: github.event_name == 'push'
         working-directory: backend
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           chmod +x mvnw
-          ./mvnw sonar:sonar \
+          ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=ES-Project-BCC_projeto-engenharia-software \
             -Dsonar.organization=es-project-bcc \
             -Dsonar.host.url=https://sonarcloud.io \

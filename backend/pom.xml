@@ -58,8 +58,7 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<!-- H2 so roda em dev local e testes, nao vai pro jar de producao -->
-			<scope>runtime</scope>
+			<!-- H2 sera usado em dev local e testes. Necessario no compile-time por causa da classe H2ConsoleConfig -->
 		</dependency>
 
 		<!-- Driver do PostgreSQL para o ambiente de producao no Render -->
@@ -138,7 +137,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.12</version>
+				<version>0.8.15</version>
 				<executions>
 					<!-- Prepara o agente antes dos testes rodarem -->
 					<execution>
