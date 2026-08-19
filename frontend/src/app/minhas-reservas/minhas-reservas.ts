@@ -73,11 +73,31 @@ export class MinhasReservas implements OnInit {
         const item = this.reservas.find(r => r.id === reserva.id);
         if (item) item.status = 'CANCELADA';
       },
-      error: () => {
-        this.errorMessage = 'Erro ao cancelar a reserva. Tente novamente.';
+      error: (err) => {
+        this.errorMessage = this.montarMensagemErroCancelamento(err);
         this.cancelandoId = null;
       }
     });
+  }
+
+  private montarMensagemErroCancelamento(err: any): string {
+    const status = err?.status;
+    const mensagemBackend: string | undefined = err?.error?.error;
+
+    if (status === 403) {
+      return 'Você não pode cancelar uma reserva que não é sua.';
+    }
+
+    if (status === 409) {
+      // o backend ja manda mensagens especificas: "ja cancelada", "recusada", "ja iniciada/encerrada"
+      return mensagemBackend ?? 'Esta reserva não pode mais ser cancelada.';
+    }
+
+    if (status === 400) {
+      return mensagemBackend ?? 'Não foi possível processar o cancelamento. Verifique os dados.';
+    }
+
+    return 'Erro ao cancelar a reserva. Tente novamente.';
   }
 
   irParaPagina(pagina: number): void {

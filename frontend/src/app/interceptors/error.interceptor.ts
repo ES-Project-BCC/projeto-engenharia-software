@@ -10,9 +10,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Se der 401 (Nao autorizado) ou 403 (Proibido), provavel que o token expirou
-      if (error.status === 401 || error.status === 403) {
-        alert('Sua sessão expirou ou você não tem permissão. Faça login novamente.');
+      // Se der 401 (Nao autorizado)
+      if (error.status === 401) { //Correção, o erro 403 deve ser para recursos não autorizados, não para expiração de token
+        alert('Sua sessão expirou. Faça login novamente.');
         authService.logout();
       } else if (error.status >= 500) {
         alert('Ocorreu um erro no servidor. Tente novamente mais tarde.');
@@ -23,7 +23,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         // mas é bom repassar o erro para o componente lidar (ex: exibir no HTML).
         console.error('Erro tratado:', errorMessage);
       }
-      
+
       return throwError(() => error);
     })
   );
