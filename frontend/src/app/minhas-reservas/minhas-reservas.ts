@@ -56,6 +56,11 @@ export class MinhasReservas implements OnInit {
   }
 
   cancelar(reserva: MinhaReservaResponse): void {
+    // #109 — confirmação antes de cancelar
+    if (!window.confirm(`Deseja cancelar a reserva de "${reserva.resourceNome}"?`)) {
+      return;
+    }
+
     this.successMessage = null;
     this.errorMessage = null;
     this.cancelandoId = reserva.id;
@@ -64,7 +69,9 @@ export class MinhasReservas implements OnInit {
       next: () => {
         this.successMessage = `Reserva de "${reserva.resourceNome}" cancelada com sucesso.`;
         this.cancelandoId = null;
-        this.carregarReservas();
+        // #110 — atualiza o status local sem recarregar a página
+        const item = this.reservas.find(r => r.id === reserva.id);
+        if (item) item.status = 'CANCELADA';
       },
       error: () => {
         this.errorMessage = 'Erro ao cancelar a reserva. Tente novamente.';

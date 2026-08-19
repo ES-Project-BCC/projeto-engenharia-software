@@ -99,13 +99,16 @@ describe('MinhasReservas', () => {
 
   // #107 — cancelarReserva no service
   describe('issue #107 — cancelarReserva', () => {
+    beforeEach(() => {
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+    });
+
     it('deve chamar cancelarReserva com o id correto', () => {
       const reserva = makeReserva({ id: 42 });
       mockService.cancelarReserva.mockReturnValue(of({
         id: 42, resourceId: 1, data: '2099-12-31',
         horarioInicio: '08:00', horarioFim: '10:00', status: 'CANCELADA',
       }));
-      mockService.listarMinhasReservas.mockReturnValue(of(makePage([])));
       component.cancelar(reserva);
       expect(mockService.cancelarReserva).toHaveBeenCalledWith(42);
     });
@@ -116,7 +119,6 @@ describe('MinhasReservas', () => {
         id: 5, resourceId: 1, data: '2099-12-31',
         horarioInicio: '08:00', horarioFim: '10:00', status: 'CANCELADA',
       }));
-      mockService.listarMinhasReservas.mockReturnValue(of(makePage([])));
       component.cancelar(reserva);
       expect(component.successMessage).toContain('Lab 01');
     });
@@ -150,6 +152,43 @@ describe('MinhasReservas', () => {
 
     it('não deve permitir cancelar reserva passada', () => {
       expect(component.podeCancel(makeReserva({ status: 'PENDENTE', data: '2000-01-01' }))).toBe(false);
+    });
+  });
+
+  // #109 — modal de confirmação
+  describe('issue #109 — confirmação antes de cancelar', () => {
+    it('não deve chamar o service se o usuário cancelar o confirm', () => {
+      vi.spyOn(window, 'confirm').mockReturnValue(false);
+      const reserva = makeReserva({ id: 1 });
+      component.cancelar(reserva);
+      expect(mockService.cancelarReserva).not.toHaveBeenCalled();
+    });
+
+    it('deve chamar o service se o usuário confirmar', () => {
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+      mockService.cancelarReserva.mockReturnValue(of({
+        id: 1, resourceId: 1, data: '2099-12-31',
+        horarioInicio: '08:00', horarioFim: '10:00', status: 'CANCELADA',
+      }));
+      component.cancelar(makeReserva({ id: 1 }));
+      expect(mockService.cancelarReserva).toHaveBeenCalledWith(1);
+    });
+  });
+
+  // #110 — atualização de estado local
+  describe('issue #110 — atualização local após cancelamento', () => {
+    it('deve atualizar o status do item na lista para CANCELADA sem recarregar', () => {
+      vi.spyOn(window, 'confirm').mockReturnValue(true);
+      const reserva = makeReserva({ id: 7, status: 'PENDENTE' });
+      component.reservas = [reserva];
+      mockService.cancelarReserva.mockReturnValue(of({
+        id: 7, resourceId: 1, data: '2099-12-31',
+        horarioInicio: '08:00', horarioFim: '10:00', status: 'CANCELADA',
+      }));
+      component.cancelar(reserva);
+      expect(component.reservas[0].status).toBe('CANCELADA');
+      // não deve ter chamado listarMinhasReservas novamente
+      expect(mockService.listarMinhasReservas).not.toHaveBeenCalled();
     });
   });
 });
