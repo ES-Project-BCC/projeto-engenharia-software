@@ -15,7 +15,7 @@ export interface ReservationResponse {
     data: string;
     horarioInicio: string;
     horarioFim: string;
-    status: 'PENDENTE' | 'CONFIRMADA' | 'RECUSADA';
+    status: 'PENDENTE' | 'CONFIRMADA' | 'RECUSADA' | 'CANCELADA';
 }
 
 export interface Page<T> {
@@ -54,5 +54,9 @@ export class ReservationService {
             .set('page', page.toString())
             .set('size', size.toString());
         return this.http.get<Page<MinhaReservaResponse>>(`${this.apiUrl}/api/reservations/me`, { params });
+    }
+
+    cancelarReserva(id: number): Observable<ReservationResponse> {
+        return this.http.patch<ReservationResponse>(`${this.apiUrl}/api/reservations/${id}/cancelar`, {});
     }
 }
