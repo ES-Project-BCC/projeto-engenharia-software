@@ -41,6 +41,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Garante permissao de execucao do mvnw
+        run: chmod +x ./mvnw
+        working-directory: backend
+
       # 4. Roda os testes E gera o relatorio JaCoCo (o -P test ativa o perfil de teste com H2)
       - name: Roda testes e gera relatorio JaCoCo
         working-directory: backend
