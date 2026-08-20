@@ -3,7 +3,6 @@ package br.edu.ufape.backend.service;
 import br.edu.ufape.backend.model.User;
 import br.edu.ufape.backend.model.enums.Role;
 import br.edu.ufape.backend.repository.UserRepository;
-import br.edu.ufape.backend.security.UserDetailsImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,8 @@ class UserDetailsServiceImplTest {
 
         UserDetails result = userDetailsServiceImpl.loadUserByUsername("email");
 
-        // CORRIGIDO: Valida os atributos essenciais para evitar erros de comparação de memória
+        // CORRIGIDO: Valida os atributos essenciais para evitar erros de comparação de
+        // memória
         Assertions.assertNotNull(result);
         Assertions.assertEquals("email", result.getUsername());
         Assertions.assertEquals("password", result.getPassword());

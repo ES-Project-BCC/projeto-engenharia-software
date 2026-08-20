@@ -46,15 +46,18 @@ class AuthServiceTest {
     void loginShouldThrowUnauthorizedOnInvalidCredentials() {
         when(authenticationManager.authenticate(any())).thenThrow(new BadCredentialsException("invalid"));
 
+        LoginRequest request = new LoginRequest("teste@email.com", "senhaerrada");
+
         ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-                () -> authService.login(new LoginRequest("teste@email.com", "senhaerrada")));
+                () -> authService.login(request));
 
         assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatusCode());
     }
 
     @Test
     void loginShouldReturnTokenForValidUser() {
-        User user = User.builder().id(1L).nome("Ana").email("ana@email.com").password("encoded").role(Role.USER).build();
+        User user = User.builder().id(1L).nome("Ana").email("ana@email.com").password("encoded").role(Role.USER)
+                .build();
         when(authenticationManager.authenticate(any())).thenReturn(null);
         when(userRepository.findByEmail("ana@email.com")).thenReturn(Optional.of(user));
         when(jwtUtil.generateToken("ana@email.com", Role.USER.name())).thenReturn("token-123");

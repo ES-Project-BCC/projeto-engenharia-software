@@ -13,6 +13,7 @@ import br.edu.ufape.backend.dto.MinhaReservaResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.time.ZoneId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -85,15 +86,16 @@ public class ReservationService {
     }
 
     private MinhaReservaResponse toMinhaReservaResponse(Reservation reservation) {
-        return new MinhaReservaResponse(
-                reservation.getId(),
-                reservation.getResource().getId(),
-                reservation.getResource().getNome(),
-                reservation.getResource().getTipo(),
-                reservation.getData(),
-                reservation.getHorarioInicio(),
-                reservation.getHorarioFim(),
-                reservation.getStatus());
+        return MinhaReservaResponse.builder()
+                .id(reservation.getId())
+                .resourceId(reservation.getResource().getId())
+                .resourceNome(reservation.getResource().getNome())
+                .resourceTipo(reservation.getResource().getTipo())
+                .data(reservation.getData())
+                .horarioInicio(reservation.getHorarioInicio())
+                .horarioFim(reservation.getHorarioFim())
+                .status(reservation.getStatus())
+                .build();
     }
 
     public ReservationResponse cancelarReserva(Long id) {
@@ -116,7 +118,7 @@ public class ReservationService {
         }
 
         LocalDateTime inicioReserva = LocalDateTime.of(reservation.getData(), reservation.getHorarioInicio());
-        if (inicioReserva.isBefore(LocalDateTime.now())) {
+        if (inicioReserva.isBefore(LocalDateTime.now(ZoneId.of("America/Recife")))) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Não é possível cancelar uma reserva já iniciada ou encerrada");
         }

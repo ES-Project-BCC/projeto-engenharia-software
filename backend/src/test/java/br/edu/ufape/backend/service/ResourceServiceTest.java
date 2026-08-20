@@ -39,9 +39,9 @@ class ResourceServiceTest {
     private Resource lab1;
     private Resource equip2;
 
-    private final LocalDate DATA = LocalDate.of(2026, 9, 1);
-    private final LocalTime INICIO = LocalTime.of(10, 0);
-    private final LocalTime FIM = LocalTime.of(12, 0);
+    private final LocalDate data = LocalDate.of(2026, 9, 1);
+    private final LocalTime inicio = LocalTime.of(10, 0);
+    private final LocalTime fim = LocalTime.of(12, 0);
 
     @BeforeEach
     void setUp() {
@@ -64,15 +64,17 @@ class ResourceServiceTest {
                 .build();
     }
 
-    // teste 1: sem nenhuma reserva conflitante, todos devem aparecer como disponivel
+    // teste 1: sem nenhuma reserva conflitante, todos devem aparecer como
+    // disponivel
     @Test
     @DisplayName("Deve retornar todos os recursos como disponíveis quando não há conflitos")
     void deveRetornarTodosDisponiveis_quandoSemConflito() {
         when(resourceRepository.findAll()).thenReturn(List.of(lab1, equip2));
-        when(reservationRepository.findConflictingResourceIds(eq(DATA), eq(INICIO), eq(FIM), anyList()))
+        when(reservationRepository.findConflictingResourceIds(
+                eq(data), eq(inicio), eq(fim), anyList()))
                 .thenReturn(List.of());
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, INICIO, FIM);
+        AvailabilityRequest request = new AvailabilityRequest(data, inicio, fim);
         List<AvailabilityResponse> result = resourceService.consultarDisponibilidade(request);
 
         assertThat(result).hasSize(2);
@@ -85,10 +87,10 @@ class ResourceServiceTest {
     void deveMarcarIndisponivel_quandoHaConflito() {
         when(resourceRepository.findAll()).thenReturn(List.of(lab1, equip2));
         // simula que o lab1 (id=1) tem conflito de horario
-        when(reservationRepository.findConflictingResourceIds(eq(DATA), eq(INICIO), eq(FIM), anyList()))
+        when(reservationRepository.findConflictingResourceIds(eq(data), eq(inicio), eq(fim), anyList()))
                 .thenReturn(List.of(1L));
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, INICIO, FIM);
+        AvailabilityRequest request = new AvailabilityRequest(data, inicio, fim);
         List<AvailabilityResponse> result = resourceService.consultarDisponibilidade(request);
 
         assertThat(result).hasSize(2);
@@ -107,11 +109,11 @@ class ResourceServiceTest {
         when(resourceRepository.findAll()).thenReturn(List.of(lab1));
         // repositorio retorna lista vazia porque a reserva cancelada foi filtrada
         when(reservationRepository.findConflictingResourceIds(
-                eq(DATA), eq(INICIO), eq(FIM),
-                eq(List.of(StatusReserva.PENDENTE, StatusReserva.CONFIRMADA))))
+                data, inicio, fim,
+                List.of(StatusReserva.PENDENTE, StatusReserva.CONFIRMADA)))
                 .thenReturn(List.of());
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, INICIO, FIM);
+        AvailabilityRequest request = new AvailabilityRequest(data, inicio, fim);
         List<AvailabilityResponse> result = resourceService.consultarDisponibilidade(request);
 
         assertThat(result).hasSize(1);
@@ -125,7 +127,7 @@ class ResourceServiceTest {
         LocalTime inicioTarde = LocalTime.of(14, 0);
         LocalTime fimCedo = LocalTime.of(13, 0); // fim antes do inicio
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, inicioTarde, fimCedo);
+        AvailabilityRequest request = new AvailabilityRequest(data, inicioTarde, fimCedo);
 
         assertThatThrownBy(() -> resourceService.consultarDisponibilidade(request))
                 .isInstanceOf(ResponseStatusException.class)
@@ -138,7 +140,7 @@ class ResourceServiceTest {
     void deveLancarBadRequest_quandoHorarioInicioIgualFim() {
         LocalTime mesmoHorario = LocalTime.of(10, 0);
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, mesmoHorario, mesmoHorario);
+        AvailabilityRequest request = new AvailabilityRequest(data, mesmoHorario, mesmoHorario);
 
         assertThatThrownBy(() -> resourceService.consultarDisponibilidade(request))
                 .isInstanceOf(ResponseStatusException.class);
