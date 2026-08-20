@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ReservationService, MinhaReservaResponse, Page } from '../services/reservation.service';
@@ -11,6 +11,7 @@ import { ReservationService, MinhaReservaResponse, Page } from '../services/rese
 })
 export class MinhasReservas implements OnInit {
   private reservationService = inject(ReservationService);
+  private cdr = inject(ChangeDetectorRef);
 
   reservas: MinhaReservaResponse[] = [];
   isLoading = true;
@@ -36,10 +37,12 @@ export class MinhasReservas implements OnInit {
         this.reservas = page.content;
         this.totalPages = page.totalPages;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.isLoading = false;
         this.errorMessage = 'Erro ao carregar reservas. Tente novamente.';
+        this.cdr.detectChanges();
       }
     });
   }
