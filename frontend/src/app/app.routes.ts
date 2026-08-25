@@ -29,7 +29,7 @@ export const routes: Routes = [
     data: { roles: ['ADMIN'] }
   },
   {
-    path: 'editar-recurso/:id',
+    path: 'recursos/:id/editar',
     component: CadastroRecurso,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ADMIN'] }
