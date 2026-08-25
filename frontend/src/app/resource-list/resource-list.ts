@@ -2,6 +2,7 @@ import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ResourceService, ResourceResponse } from '../services/resource.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-resource-list',
@@ -11,6 +12,7 @@ import { ResourceService, ResourceResponse } from '../services/resource.service'
 })
 export class ResourceList implements OnInit {
   private resourceService = inject(ResourceService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
 
   recursos: ResourceResponse[] = [];
@@ -32,5 +34,10 @@ export class ResourceList implements OnInit {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  // usado no template pra decidir se mostra o botao de editar
+  isAdmin(): boolean {
+    return this.authService.getRole() === 'ADMIN';
   }
 }

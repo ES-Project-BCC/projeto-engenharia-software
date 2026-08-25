@@ -40,9 +40,12 @@
         <p class="resource-capacidade" *ngIf="recurso.capacidade != null">
           👥 Capacidade: {{ recurso.capacidade }}
         </p>
-        <a [routerLink]="['/reserva', recurso.id]" class="btn-reservar">Reservar</a>
+        <div class="resource-actions">
+          <a [routerLink]="['/reserva', recurso.id]" class="btn-reservar">Reservar</a>
+          <a *ngIf="isAdmin()" [routerLink]="['/recursos', recurso.id, 'editar']" class="btn-editar">✏️ Editar</a>
+        </div>
       </div>
     </div>
 
   </div>
-</div>
+</div>
