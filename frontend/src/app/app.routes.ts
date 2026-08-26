@@ -9,6 +9,7 @@ import { SolicitarReserva } from './solicitar-reserva/solicitar-reserva';
 import { ConsultaDisponibilidade } from './consulta-disponibilidade/consulta-disponibilidade';
 import { MinhasReservas } from './minhas-reservas/minhas-reservas';
 import { ReservasPorRecurso } from './reservas-por-recurso/reservas-por-recurso';
+import { BloquearRecurso } from './bloquear-recurso/bloquear-recurso';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 
@@ -26,6 +27,12 @@ export const routes: Routes = [
   {
     path: 'cadastro-recurso',
     component: CadastroRecurso,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'bloquear-recurso',
+    component: BloquearRecurso,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ADMIN'] }
   },
@@ -63,4 +70,4 @@ export const routes: Routes = [
     data: { roles: ['ADMIN'] }
   },
   { path: '**', redirectTo: '/login' }
-];
+];
