@@ -4,6 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.edu.ufape.backend.dto.AvailabilityRequest;
 import br.edu.ufape.backend.dto.AvailabilityResponse;
+import br.edu.ufape.backend.dto.ReservationAdminResponse;
 import br.edu.ufape.backend.dto.ResourceRequest;
 import br.edu.ufape.backend.dto.ResourceResponse;
+import br.edu.ufape.backend.service.ReservationService;
 import br.edu.ufape.backend.service.ResourceService;
 import jakarta.validation.Valid;
 
@@ -28,9 +34,11 @@ import jakarta.validation.Valid;
 public class ResourceController {
 
     private final ResourceService resourceService;
+    private final ReservationService reservationService;
 
-    public ResourceController(ResourceService resourceService) {
+    public ResourceController(ResourceService resourceService, ReservationService reservationService) {
         this.resourceService = resourceService;
+        this.reservationService = reservationService;
     }
 
     @PostMapping
@@ -70,4 +78,13 @@ public class ResourceController {
         List<AvailabilityResponse> response = resourceService.consultarDisponibilidade(request);
         return ResponseEntity.ok(response);
     }
-}
+
+    // lista as reservas de um recurso especifico, usado pelo admin (US11)
+    @GetMapping("/{id}/reservations")
+    public ResponseEntity<Page<ReservationAdminResponse>> listarReservasPorRecurso(
+            @PathVariable Long id,
+            @PageableDefault(size = 10, sort = "data", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ReservationAdminResponse> response = reservationService.listarReservasPorRecurso(id, pageable);
+        return ResponseEntity.ok(response);
+    }
+}
