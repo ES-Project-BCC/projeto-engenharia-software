@@ -284,6 +284,12 @@
   color: #721c24;
 }
 
+.status-manutencao {
+  font-size: 13px;
+  font-weight: bold;
+  color: #9a3412;
+}
+
 /* Estado vazio */
 .empty-state {
   display: flex;
