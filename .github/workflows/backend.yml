@@ -1,0 +1,59 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-and-test:
+    name: Build, Testes e Analise de Qualidade
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configura JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26'
+          distribution: 'temurin'
+
+      - name: Cache do repositorio Maven
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Roda testes e gera relatorio JaCoCo
+        working-directory: backend
+        run: |
+          chmod +x mvnw
+          ./mvnw verify -Dspring.profiles.active=test -B
+
+      # SonarCloud so roda no push pra main (nao em PRs de forks)
+      # porque o GitHub bloqueia secrets em PRs de forks por seguranca
+      - name: Analise SonarCloud
+        if: github.event_name == 'push'
+        working-directory: backend
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          chmod +x mvnw
+          ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=ES-Project-BCC_projeto-engenharia-software \
+            -Dsonar.organization=es-project-bcc \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -B

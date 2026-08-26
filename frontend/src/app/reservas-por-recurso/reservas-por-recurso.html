@@ -1,0 +1,77 @@
+<div class="page-container">
+  <div class="content-card">
+
+    <div class="card-header">
+      <a routerLink="/recursos" class="btn-back">← Voltar</a>
+      <div class="header-content">
+        <div class="header-icon">📋</div>
+        <h1>Reservas do Recurso</h1>
+        <p>Visualização administrativa de todas as reservas</p>
+      </div>
+    </div>
+
+    <!-- loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <p>Carregando reservas...</p>
+    </div>
+
+    <!-- erro -->
+    <div class="alert alert-error" *ngIf="errorMessage && !isLoading">
+      <span class="alert-icon">❌</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- estado vazio -->
+    <div class="empty-state" *ngIf="!isLoading && !errorMessage && reservas.length === 0">
+      <div class="empty-icon">📭</div>
+      <p>Nenhuma reserva encontrada para este recurso.</p>
+      <a routerLink="/recursos" class="btn-primary">Voltar para Recursos</a>
+    </div>
+
+    <!-- tabela de reservas -->
+    <div class="table-wrapper" *ngIf="!isLoading && reservas.length > 0">
+      <table class="reservas-table">
+        <thead>
+          <tr>
+            <th>Usuário</th>
+            <th>E-mail</th>
+            <th>Data</th>
+            <th>Horário</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let reserva of reservas">
+            <td>{{ reserva.userNome }}</td>
+            <td class="email-cell">{{ reserva.userEmail }}</td>
+            <td>📅 {{ reserva.data }}</td>
+            <td>🕐 {{ reserva.horarioInicio }} – {{ reserva.horarioFim }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(reserva.status)">
+                {{ getStatusLabel(reserva.status) }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- paginacao -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button
+        class="btn-page"
+        [disabled]="currentPage === 0"
+        (click)="irParaPagina(currentPage - 1)">
+        ← Anterior
+      </button>
+      <span class="page-info">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+      <button
+        class="btn-page"
+        [disabled]="currentPage === totalPages - 1"
+        (click)="irParaPagina(currentPage + 1)">
+        Próxima →
+      </button>
+    </div>
+
+  </div>
+</div>

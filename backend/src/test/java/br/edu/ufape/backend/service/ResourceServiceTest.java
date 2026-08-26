@@ -2,10 +2,13 @@ package br.edu.ufape.backend.service;
 
 import br.edu.ufape.backend.dto.AvailabilityRequest;
 import br.edu.ufape.backend.dto.AvailabilityResponse;
+import br.edu.ufape.backend.dto.ResourceRequest;
+import br.edu.ufape.backend.dto.ResourceResponse;
 import br.edu.ufape.backend.model.Resource;
 import br.edu.ufape.backend.model.enums.StatusReserva;
 import br.edu.ufape.backend.model.enums.TipoRecurso;
 import br.edu.ufape.backend.repository.ReservationRepository;
+import br.edu.ufape.backend.repository.ResourceBlockRepository;
 import br.edu.ufape.backend.repository.ResourceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -33,15 +37,18 @@ class ResourceServiceTest {
     @Mock
     private ReservationRepository reservationRepository;
 
+    @Mock
+    private ResourceBlockRepository resourceBlockRepository;
+
     @InjectMocks
     private ResourceService resourceService;
 
     private Resource lab1;
     private Resource equip2;
 
-    private final LocalDate DATA = LocalDate.of(2026, 9, 1);
-    private final LocalTime INICIO = LocalTime.of(10, 0);
-    private final LocalTime FIM = LocalTime.of(12, 0);
+    private final LocalDate data = LocalDate.of(2026, 9, 1);
+    private final LocalTime inicio = LocalTime.of(10, 0);
+    private final LocalTime fim = LocalTime.of(12, 0);
 
     @BeforeEach
     void setUp() {
@@ -64,15 +71,20 @@ class ResourceServiceTest {
                 .build();
     }
 
-    // teste 1: sem nenhuma reserva conflitante, todos devem aparecer como disponivel
+    // teste 1: sem nenhuma reserva conflitante, todos devem aparecer como
+    // disponivel
     @Test
     @DisplayName("Deve retornar todos os recursos como disponíveis quando não há conflitos")
     void deveRetornarTodosDisponiveis_quandoSemConflito() {
         when(resourceRepository.findAll()).thenReturn(List.of(lab1, equip2));
-        when(reservationRepository.findConflictingResourceIds(eq(DATA), eq(INICIO), eq(FIM), anyList()))
+        when(reservationRepository.findConflictingResourceIds(
+                eq(data), eq(inicio), eq(fim), anyList()))
+                .thenReturn(List.of());
+        // sem bloqueios administrativos no periodo
+        when(resourceBlockRepository.findBlockedResourceIds(any(), any()))
                 .thenReturn(List.of());
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, INICIO, FIM);
+        AvailabilityRequest request = new AvailabilityRequest(data, inicio, fim);
         List<AvailabilityResponse> result = resourceService.consultarDisponibilidade(request);
 
         assertThat(result).hasSize(2);
@@ -85,10 +97,13 @@ class ResourceServiceTest {
     void deveMarcarIndisponivel_quandoHaConflito() {
         when(resourceRepository.findAll()).thenReturn(List.of(lab1, equip2));
         // simula que o lab1 (id=1) tem conflito de horario
-        when(reservationRepository.findConflictingResourceIds(eq(DATA), eq(INICIO), eq(FIM), anyList()))
+        when(reservationRepository.findConflictingResourceIds(eq(data), eq(inicio), eq(fim), anyList()))
                 .thenReturn(List.of(1L));
+        // sem bloqueios administrativos
+        when(resourceBlockRepository.findBlockedResourceIds(any(), any()))
+                .thenReturn(List.of());
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, INICIO, FIM);
+        AvailabilityRequest request = new AvailabilityRequest(data, inicio, fim);
         List<AvailabilityResponse> result = resourceService.consultarDisponibilidade(request);
 
         assertThat(result).hasSize(2);
@@ -107,11 +122,14 @@ class ResourceServiceTest {
         when(resourceRepository.findAll()).thenReturn(List.of(lab1));
         // repositorio retorna lista vazia porque a reserva cancelada foi filtrada
         when(reservationRepository.findConflictingResourceIds(
-                eq(DATA), eq(INICIO), eq(FIM),
-                eq(List.of(StatusReserva.PENDENTE, StatusReserva.CONFIRMADA))))
+                data, inicio, fim,
+                List.of(StatusReserva.PENDENTE, StatusReserva.CONFIRMADA)))
+                .thenReturn(List.of());
+        // sem bloqueios administrativos
+        when(resourceBlockRepository.findBlockedResourceIds(any(), any()))
                 .thenReturn(List.of());
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, INICIO, FIM);
+        AvailabilityRequest request = new AvailabilityRequest(data, inicio, fim);
         List<AvailabilityResponse> result = resourceService.consultarDisponibilidade(request);
 
         assertThat(result).hasSize(1);
@@ -125,7 +143,7 @@ class ResourceServiceTest {
         LocalTime inicioTarde = LocalTime.of(14, 0);
         LocalTime fimCedo = LocalTime.of(13, 0); // fim antes do inicio
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, inicioTarde, fimCedo);
+        AvailabilityRequest request = new AvailabilityRequest(data, inicioTarde, fimCedo);
 
         assertThatThrownBy(() -> resourceService.consultarDisponibilidade(request))
                 .isInstanceOf(ResponseStatusException.class)
@@ -138,9 +156,57 @@ class ResourceServiceTest {
     void deveLancarBadRequest_quandoHorarioInicioIgualFim() {
         LocalTime mesmoHorario = LocalTime.of(10, 0);
 
-        AvailabilityRequest request = new AvailabilityRequest(DATA, mesmoHorario, mesmoHorario);
+        AvailabilityRequest request = new AvailabilityRequest(data, mesmoHorario, mesmoHorario);
 
         assertThatThrownBy(() -> resourceService.consultarDisponibilidade(request))
                 .isInstanceOf(ResponseStatusException.class);
+    }
+
+    // ---- testes de editarRecurso (task #146, #147) ----
+
+    // teste 6: edicao com sucesso - deve retornar o resource atualizado
+    @Test
+    @DisplayName("Deve editar e retornar o recurso atualizado quando o id existe")
+    void deveEditarRecurso_quandoIdExiste() {
+        ResourceRequest request = new ResourceRequest("Lab B", "Lab atualizado", 40, TipoRecurso.LABORATORIO, false);
+
+        when(resourceRepository.findById(1L)).thenReturn(Optional.of(lab1));
+        when(resourceRepository.save(any(Resource.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        ResourceResponse response = resourceService.editarRecurso(1L, request);
+
+        assertThat(response.getNome()).isEqualTo("Lab B");
+        assertThat(response.getDescricao()).isEqualTo("Lab atualizado");
+        assertThat(response.getCapacidade()).isEqualTo(40);
+        assertThat(response.getTipo()).isEqualTo(TipoRecurso.LABORATORIO);
+        assertThat(response.getStatusFuncionamento()).isFalse();
+    }
+
+    // teste 7: edicao com id inexistente deve lancar 404 NOT_FOUND
+    @Test
+    @DisplayName("Deve lançar 404 NOT_FOUND quando o id do recurso não existe")
+    void deveLancar404_quandoIdNaoExiste() {
+        ResourceRequest request = new ResourceRequest("Qualquer", "Desc", 10, TipoRecurso.EQUIPAMENTO, true);
+
+        when(resourceRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> resourceService.editarRecurso(999L, request))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("404");
+    }
+
+    // teste 8: statusFuncionamento null no request nao deve sobrescrever o valor atual
+    @Test
+    @DisplayName("Deve manter statusFuncionamento atual quando request envia null")
+    void deveManter_statusFuncionamento_quandoRequestEnviaNull() {
+        ResourceRequest request = new ResourceRequest("Lab A", "Lab de redes", 30, TipoRecurso.LABORATORIO, null);
+
+        when(resourceRepository.findById(1L)).thenReturn(Optional.of(lab1));
+        when(resourceRepository.save(any(Resource.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        ResourceResponse response = resourceService.editarRecurso(1L, request);
+
+        // lab1 foi criado com statusFuncionamento=true, e o request mandou null
+        assertThat(response.getStatusFuncionamento()).isTrue();
     }
 }

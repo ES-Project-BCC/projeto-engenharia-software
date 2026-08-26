@@ -58,6 +58,14 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<!-- H2 sera usado em dev local e testes. Necessario no compile-time por causa da classe H2ConsoleConfig -->
+		</dependency>
+
+		<!-- Driver do PostgreSQL para o ambiente de producao no Render -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- JWT -->
@@ -123,6 +131,30 @@
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
+			</plugin>
+			<!-- Plugin JaCoCo: gera o relatorio de cobertura de testes -->
+			<!-- O SonarCloud vai ler esse relatorio pra saber o quanto do codigo esta sendo testado -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.15</version>
+				<executions>
+					<!-- Prepara o agente antes dos testes rodarem -->
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<!-- Gera o relatorio depois que os testes terminam -->
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

@@ -1,9 +1,11 @@
 package br.edu.ufape.backend.dto;
 
+import br.edu.ufape.backend.validation.ValidHorario;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@ValidHorario
 public class ReservationRequest {
 
     @NotNull(message = "O id do recurso é obrigatório")

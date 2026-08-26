@@ -12,7 +12,7 @@ import br.edu.ufape.backend.model.User;
 // adaptador do user pro spring security
 public class UserDetailsImpl implements UserDetails {
 
-    private final User user;
+    private final transient User user;
 
     public UserDetailsImpl(User user) {
         this.user = user;

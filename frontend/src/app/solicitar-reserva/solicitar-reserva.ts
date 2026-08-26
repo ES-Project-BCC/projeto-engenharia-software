@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ReservationService, ReservationRequest } from '../services/reservation.service';
 import { ResourceService, ResourceResponse } from '../services/resource.service';
+import { debounceTime, Subject } from 'rxjs';
 
 @Component({
   selector: 'app-solicitar-reserva',
@@ -23,6 +24,12 @@ export class SolicitarReserva implements OnInit {
   isLoading = false;
   successMessage: string | null = null;
   errorMessage: string | null = null;
+
+  // estado de disponibilidade (#88)
+  isCheckingDisponibilidade = false;
+  horarioIndisponivel = false;
+
+  private disponibilidadeSubject = new Subject<void>();
 
   reservaData: ReservationRequest = {
     resourceId: 0,
@@ -50,6 +57,37 @@ export class SolicitarReserva implements OnInit {
         this.errorMessage = 'Erro ao carregar o recurso. Tente novamente.';
       }
     });
+
+    // debounce pra nao chamar a api a cada tecla (#88)
+    this.disponibilidadeSubject.pipe(debounceTime(500)).subscribe(() => {
+      this.verificarDisponibilidade();
+    });
+  }
+
+  onCampoHorarioChange(): void {
+    const { data, horarioInicio, horarioFim } = this.reservaData;
+    if (data && horarioInicio && horarioFim) {
+      this.disponibilidadeSubject.next();
+    } else {
+      this.horarioIndisponivel = false;
+    }
+  }
+
+  private verificarDisponibilidade(): void {
+    const { data, horarioInicio, horarioFim, resourceId } = this.reservaData;
+    this.isCheckingDisponibilidade = true;
+
+    this.resourceService.consultarDisponibilidade(data, horarioInicio, horarioFim).subscribe({
+      next: (recursos) => {
+        const recursoAtual = recursos.find(r => r.id === resourceId);
+        this.horarioIndisponivel = recursoAtual ? !recursoAtual.disponivel : false;
+        this.isCheckingDisponibilidade = false;
+      },
+      error: () => {
+        this.isCheckingDisponibilidade = false;
+        this.horarioIndisponivel = false;
+      }
+    });
   }
 
   onSubmit() {
@@ -61,6 +99,7 @@ export class SolicitarReserva implements OnInit {
     this.reservationService.criarReserva(this.reservaData).subscribe({
       next: (response) => {
         this.isLoading = false;
+        this.horarioIndisponivel = false;
         // feedback de confirmacao com os detalhes da reserva (task #49)
         this.successMessage =
           `Reserva solicitada com sucesso! 📅 ${response.data} das ${response.horarioInicio} às ${response.horarioFim}. Status: ${response.status}.`;

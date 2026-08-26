@@ -46,14 +46,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception { // NOSONAR
+                                                                                                              // -
+                                                                                                              // throws
+                                                                                                              // Exception
+                                                                                                              // exigido
+                                                                                                              // pela
+                                                                                                              // assinatura
+                                                                                                              // do
+                                                                                                              // Spring
+                                                                                                              // Security
         return config.getAuthenticationManager();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://frontend-reservas.onrender.com"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -66,12 +77,15 @@ public class SecurityConfig {
     // ignora o h2 no security senao da block 403
     @Bean
     public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
+        return web -> web.ignoring()
                 .requestMatchers(request -> request.getRequestURI().startsWith("/h2-console"));
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception { // NOSONAR - throws Exception
+                                                                                         // exigido pela assinatura do
+                                                                                         // Spring Security
+                                                                                         // (http.build())
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
@@ -85,11 +99,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/resources").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/resources/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/resources/disponibilidade").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/resources/*/reservations").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/resources/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/resources").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/reservations").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/api/reservations/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/reservations/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/resource-blocks").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/resource-blocks").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/resource-blocks/**").hasRole("ADMIN")
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
 

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -16,6 +16,7 @@ import {
 })
 export class ConsultaDisponibilidade {
   private resourceService = inject(ResourceService);
+  private cdr = inject(ChangeDetectorRef);
 
   // campos do formulario
   data = '';
@@ -59,6 +60,7 @@ export class ConsultaDisponibilidade {
           this.resultados = data;
           this.consultado = true;
           this.carregando = false;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.carregando = false;
@@ -67,6 +69,7 @@ export class ConsultaDisponibilidade {
           } else {
             this.erro = 'Erro ao consultar disponibilidade. Tente novamente.';
           }
+          this.cdr.detectChanges();
         },
       });
   }

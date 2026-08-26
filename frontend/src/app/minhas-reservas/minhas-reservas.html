@@ -1,0 +1,84 @@
+<div class="page-container">
+  <div class="content-card">
+
+    <div class="card-header">
+      <div class="header-content">
+        <div class="header-icon">📋</div>
+        <h1>Minhas Reservas</h1>
+        <p>Acompanhe suas solicitações de reserva</p>
+      </div>
+    </div>
+
+    <!-- loading -->
+    <div class="loading-state" *ngIf="isLoading">
+      <p>Carregando reservas...</p>
+    </div>
+
+    <!-- sucesso -->
+    <div class="alert alert-success" *ngIf="successMessage && !isLoading">
+      <span class="alert-icon">✅</span>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <!-- erro -->
+    <div class="alert alert-error" *ngIf="errorMessage && !isLoading">
+      <span class="alert-icon">❌</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- estado vazio -->
+    <div class="empty-state" *ngIf="!isLoading && !errorMessage && reservas.length === 0">
+      <div class="empty-icon">📭</div>
+      <p>Você ainda não possui reservas.</p>
+      <a routerLink="/recursos" class="btn-primary">Ver Recursos Disponíveis</a>
+    </div>
+
+    <!-- lista de reservas -->
+    <div class="reservas-list" *ngIf="!isLoading && reservas.length > 0">
+      <div class="reserva-card" *ngFor="let reserva of reservas">
+        <div class="reserva-header">
+          <div class="reserva-info">
+            <h3>{{ reserva.resourceNome }}</h3>
+            <span class="tipo-badge" [class.tipo-lab]="reserva.resourceTipo === 'LABORATORIO'" [class.tipo-equip]="reserva.resourceTipo === 'EQUIPAMENTO'">
+              {{ reserva.resourceTipo === 'LABORATORIO' ? 'Laboratório' : 'Equipamento' }}
+            </span>
+          </div>
+          <div class="reserva-actions">
+            <span class="status-badge" [ngClass]="getStatusClass(reserva.status)">
+              {{ getStatusLabel(reserva.status) }}
+            </span>
+            <button
+              class="btn-cancelar"
+              *ngIf="podeCancel(reserva)"
+              [disabled]="cancelandoId === reserva.id"
+              (click)="cancelar(reserva)">
+              {{ cancelandoId === reserva.id ? 'Cancelando...' : 'Cancelar' }}
+            </button>
+          </div>
+        </div>
+        <div class="reserva-detalhes">
+          <span>📅 {{ reserva.data }}</span>
+          <span>🕐 {{ reserva.horarioInicio }} às {{ reserva.horarioFim }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- paginacao -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button
+        class="btn-page"
+        [disabled]="currentPage === 0"
+        (click)="irParaPagina(currentPage - 1)">
+        ← Anterior
+      </button>
+      <span class="page-info">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+      <button
+        class="btn-page"
+        [disabled]="currentPage === totalPages - 1"
+        (click)="irParaPagina(currentPage + 1)">
+        Próxima →
+      </button>
+    </div>
+
+  </div>
+</div>

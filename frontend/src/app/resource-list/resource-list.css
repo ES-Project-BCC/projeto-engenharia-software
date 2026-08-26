@@ -159,4 +159,50 @@
 
 .btn-reservar:hover {
   background-color: #004494;
-}
+}
+
+/* container dos botoes de acao (reservar + editar) */
+.resource-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.resource-actions .btn-reservar {
+  flex: 1;
+  margin-top: 0;
+}
+
+/* botao de editar, visivel so para admin */
+.btn-editar {
+  flex: 1;
+  display: block;
+  text-align: center;
+  background-color: #6c757d;
+  color: white;
+  text-decoration: none;
+  padding: 8px 0;
+  font-size: 13px;
+  border: 1px solid #565e64;
+}
+
+.btn-editar:hover {
+  background-color: #565e64;
+}
+
+/* botao de ver reservas, visivel so para admin */
+.btn-ver-reservas {
+  flex: 1;
+  display: block;
+  text-align: center;
+  background-color: #0f766e;
+  color: white;
+  text-decoration: none;
+  padding: 8px 0;
+  font-size: 13px;
+  border: 1px solid #0d6460;
+}
+
+.btn-ver-reservas:hover {
+  background-color: #0d6460;
+}

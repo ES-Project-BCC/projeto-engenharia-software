@@ -3,6 +3,9 @@ package br.edu.ufape.backend.repository;
 import br.edu.ufape.backend.model.Reservation;
 import br.edu.ufape.backend.model.Resource;
 import br.edu.ufape.backend.model.enums.StatusReserva;
+import br.edu.ufape.backend.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,12 +18,6 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    boolean existsByResourceAndDataAndHorarioInicioLessThanAndHorarioFimGreaterThan(
-            Resource resource,
-            LocalDate data,
-            LocalTime horarioInicio,
-            LocalTime horarioFim);
-
     @Query("SELECT r.resource.id FROM Reservation r " +
             "WHERE r.data = :data " +
             "AND r.horarioInicio < :horarioFim " +
@@ -31,4 +28,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("horarioInicio") LocalTime horarioInicio,
             @Param("horarioFim") LocalTime horarioFim,
             @Param("statusesAtivos") List<StatusReserva> statusesAtivos);
+
+    Page<Reservation> findByUserOrderByDataDescHorarioInicioDesc(User user, Pageable pageable);
+
+    Page<Reservation> findByResourceOrderByDataDescHorarioInicioDesc(Resource resource, Pageable pageable);
 }

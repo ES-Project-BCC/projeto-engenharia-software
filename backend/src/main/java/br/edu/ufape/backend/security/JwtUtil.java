@@ -1,6 +1,7 @@
 package br.edu.ufape.backend.security;
 
 import java.util.Date;
+import java.time.Instant;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
@@ -12,7 +13,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-
 
 @Component
 public class JwtUtil {
@@ -27,21 +27,21 @@ public class JwtUtil {
         byte[] keyBytes;
         try {
             keyBytes = Decoders.BASE64.decode(secret);
-        } catch (Exception ex) {
+        } catch (Exception _) {
             keyBytes = secret.getBytes();
         }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String email, String role) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + expirationMs);
+        Instant now = Instant.now();
+        Instant expiryInstant = now.plusMillis(expirationMs);
 
         return Jwts.builder()
                 .subject(email)
                 .claim("role", role)
-                .issuedAt(now)
-                .expiration(expiryDate)
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiryInstant))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -54,8 +54,8 @@ public class JwtUtil {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }
 
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+    public Instant extractExpiration(String token) {
+        return extractClaim(token, claims -> claims.getExpiration().toInstant());
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -72,14 +72,14 @@ public class JwtUtil {
     }
 
     private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+        return extractExpiration(token).isBefore(Instant.now());
     }
 
     public boolean isTokenValid(String token, String expectedEmail) {
         try {
             String email = extractEmail(token);
             return email.equals(expectedEmail) && !isTokenExpired(token);
-        } catch (Exception ex) {
+        } catch (Exception _) {
             return false;
         }
     }

@@ -46,6 +46,7 @@
           id="data"
           name="data"
           [(ngModel)]="reservaData.data"
+          (change)="onCampoHorarioChange()"
           required
           #data="ngModel">
         <div class="error-message" *ngIf="data.invalid && (data.dirty || data.touched)">
@@ -64,6 +65,7 @@
             id="horarioInicio"
             name="horarioInicio"
             [(ngModel)]="reservaData.horarioInicio"
+            (change)="onCampoHorarioChange()"
             required
             #horarioInicio="ngModel">
           <div class="error-message" *ngIf="horarioInicio.invalid && (horarioInicio.dirty || horarioInicio.touched)">
@@ -79,6 +81,7 @@
             id="horarioFim"
             name="horarioFim"
             [(ngModel)]="reservaData.horarioFim"
+            (change)="onCampoHorarioChange()"
             required
             #horarioFim="ngModel">
           <div class="error-message" *ngIf="horarioFim.invalid && (horarioFim.dirty || horarioFim.touched)">
@@ -94,9 +97,11 @@
         <button
           type="submit"
           class="btn-primary"
-          [disabled]="reservaForm.invalid || isLoading">
-          <span *ngIf="!isLoading">Solicitar Reserva</span>
+          [disabled]="reservaForm.invalid || isLoading || isCheckingDisponibilidade || horarioIndisponivel">
+          <span *ngIf="!isLoading && !isCheckingDisponibilidade && !horarioIndisponivel">Solicitar Reserva</span>
+          <span *ngIf="isCheckingDisponibilidade">Verificando disponibilidade...</span>
           <span *ngIf="isLoading">Enviando...</span>
+          <span *ngIf="horarioIndisponivel && !isCheckingDisponibilidade">Horário indisponível</span>
         </button>
       </div>
 

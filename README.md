@@ -6,6 +6,17 @@ A Plataforma de Reserva de Laboratórios e Equipamentos é uma solução desenvo
 
 ---
 
+## Deploy
+
+| | URL |
+|---|---|
+| Frontend | https://frontend-reservas.onrender.com |
+| Backend | https://backend-reservas-8gvn.onrender.com |
+
+> O plano free do Render hiberna por inatividade, a primeira requisição pode demorar um pouco.
+
+---
+
 ## Equipe
 
 | Membro | GitHub |

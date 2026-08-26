@@ -57,7 +57,7 @@ public class AuthService {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        } catch (BadCredentialsException ex) {
+        } catch (BadCredentialsException _) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email ou senha invalidos");
         }
 

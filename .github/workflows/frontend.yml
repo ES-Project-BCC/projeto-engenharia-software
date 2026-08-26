@@ -1,0 +1,46 @@
+name: Frontend CI
+
+# Roda automaticamente em push ou PR pra main que alterem o frontend
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build-and-test:
+    name: Build e Testes do Angular
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o codigo do repositorio
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      # 2. Configura o Node.js
+      - name: Configura Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      # 3. Instala as dependencias
+      - name: Instala dependencias
+        working-directory: frontend
+        run: npm ci
+
+      # 4. Roda os testes
+      - name: Roda testes
+        working-directory: frontend
+        run: npm run test -- --watch=false
+
+      # 5. Compila em modo producao pra garantir que nao tem erro de build
+      - name: Build de producao
+        working-directory: frontend
+        run: npm run build -- --configuration production

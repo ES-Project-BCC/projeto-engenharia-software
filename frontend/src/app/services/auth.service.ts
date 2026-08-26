@@ -2,12 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080';
+  // usa a URL definida no environment (localhost em dev, Render em producao)
+  private apiUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private router = inject(Router);
 
