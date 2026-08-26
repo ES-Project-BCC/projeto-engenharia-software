@@ -1,6 +1,7 @@
 package br.edu.ufape.backend.repository;
 
 import br.edu.ufape.backend.model.Reservation;
+import br.edu.ufape.backend.model.Resource;
 import br.edu.ufape.backend.model.enums.StatusReserva;
 import br.edu.ufape.backend.model.User;
 import org.springframework.data.domain.Page;
@@ -29,4 +30,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("statusesAtivos") List<StatusReserva> statusesAtivos);
 
     Page<Reservation> findByUserOrderByDataDescHorarioInicioDesc(User user, Pageable pageable);
+
+    Page<Reservation> findByResourceOrderByDataDescHorarioInicioDesc(Resource resource, Pageable pageable);
 }
