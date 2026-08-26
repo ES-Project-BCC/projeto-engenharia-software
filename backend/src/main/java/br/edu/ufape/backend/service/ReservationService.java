@@ -1,5 +1,6 @@
 package br.edu.ufape.backend.service;
 
+import br.edu.ufape.backend.dto.ReservationAdminResponse;
 import br.edu.ufape.backend.dto.ReservationRequest;
 import br.edu.ufape.backend.dto.ReservationResponse;
 import br.edu.ufape.backend.model.Reservation;
@@ -91,6 +92,30 @@ public class ReservationService {
                 .resourceId(reservation.getResource().getId())
                 .resourceNome(reservation.getResource().getNome())
                 .resourceTipo(reservation.getResource().getTipo())
+                .data(reservation.getData())
+                .horarioInicio(reservation.getHorarioInicio())
+                .horarioFim(reservation.getHorarioFim())
+                .status(reservation.getStatus())
+                .build();
+    }
+
+    public Page<ReservationAdminResponse> listarReservasPorRecurso(Long resourceId, Pageable pageable) {
+        Resource resource = resourceRepository.findById(resourceId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Resource não encontrado"));
+
+        Page<Reservation> reservas = reservationRepository
+                .findByResourceOrderByDataDescHorarioInicioDesc(resource, pageable);
+
+        return reservas.map(this::toReservationAdminResponse);
+    }
+
+    private ReservationAdminResponse toReservationAdminResponse(Reservation reservation) {
+        User user = reservation.getUser();
+        return ReservationAdminResponse.builder()
+                .id(reservation.getId())
+                .userId(user.getId())
+                .userNome(user.getNome())
+                .userEmail(user.getEmail())
                 .data(reservation.getData())
                 .horarioInicio(reservation.getHorarioInicio())
                 .horarioFim(reservation.getHorarioFim())
