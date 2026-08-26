@@ -37,6 +37,12 @@ export const routes: Routes = [
     data: { roles: ['ADMIN'] }
   },
   {
+    path: 'recursos/:id/bloquear',
+    component: BloquearRecurso,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
     path: 'recursos/:id/editar',
     component: CadastroRecurso,
     canActivate: [authGuard, roleGuard],
