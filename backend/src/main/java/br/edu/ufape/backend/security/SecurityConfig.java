@@ -25,6 +25,9 @@ import br.edu.ufape.backend.service.UserDetailsServiceImpl;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /** Nome da role de administrador (hasRole adiciona o prefixo ROLE_ automaticamente). */
+    private static final String ROLE_ADMIN = "ADMIN";
+
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsServiceImpl userDetailsService;
 
@@ -97,19 +100,19 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/resources").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/resources/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers(HttpMethod.POST, "/api/resources").hasRole(ROLE_ADMIN)
+                        .requestMatchers(HttpMethod.PUT, "/api/resources/**").hasRole(ROLE_ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/resources/disponibilidade").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/resources/*/reservations").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/resources/*/reservations").hasRole(ROLE_ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/resources/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/resources").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/reservations").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/api/reservations/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/reservations/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/resource-blocks").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/resource-blocks").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/resource-blocks/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/resource-blocks").hasRole(ROLE_ADMIN)
+                        .requestMatchers(HttpMethod.DELETE, "/api/resource-blocks/**").hasRole(ROLE_ADMIN)
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
 
