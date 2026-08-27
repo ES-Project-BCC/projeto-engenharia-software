@@ -113,9 +113,14 @@ export class SolicitarReserva implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        // mensagem de erro especifica por código http
+        const mensagemBackend = err?.error?.message ?? '';
+
         if (err.status === 409) {
-          this.errorMessage = 'Horário indisponível. Já existe uma reserva nesse período para este recurso.';
+          if (mensagemBackend.toLowerCase().includes('bloqueado') || mensagemBackend.toLowerCase().includes('manutenção') || mensagemBackend.toLowerCase().includes('restrição administrativa')) {
+            this.errorMessage = 'Este recurso está bloqueado neste período por manutenção ou restrição administrativa.';
+          } else {
+            this.errorMessage = 'Horário indisponível. Já existe uma reserva nesse período para este recurso.';
+          }
         } else if (err.status === 400) {
           this.errorMessage = 'Dados inválidos. Verifique se o horário de fim é maior que o de início.';
         } else if (err.status === 403) {

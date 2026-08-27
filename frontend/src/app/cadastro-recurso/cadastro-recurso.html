@@ -4,10 +4,16 @@
     <div class="card-header">
       <a routerLink="/admin" class="btn-back">← Voltar ao Painel</a>
       <div class="header-content">
-        <div class="header-icon">📦</div>
-        <h1>Cadastrar Recurso</h1>
-        <p>Preencha as informações do novo recurso</p>
+        <div class="header-icon">{{ modoEdicao ? '✏️' : '📦' }}</div>
+        <h1>{{ modoEdicao ? 'Editar Recurso' : 'Cadastrar Recurso' }}</h1>
+        <p>{{ modoEdicao ? 'Altere as informações do recurso' : 'Preencha as informações do novo recurso' }}</p>
       </div>
+    </div>
+
+    <!-- loading ao buscar dados do recurso para edicao -->
+    <div class="alert alert-info" *ngIf="isLoadingDados">
+      <span class="alert-icon">⏳</span>
+      Carregando dados do recurso...
     </div>
 
     <!-- aviso q deu certo -->
@@ -116,9 +122,9 @@
         <button
           type="submit"
           class="btn-primary"
-          [disabled]="recursoForm.invalid || isLoading">
-          <span *ngIf="!isLoading">Cadastrar Recurso</span>
-          <span *ngIf="isLoading">Cadastrando...</span>
+          [disabled]="recursoForm.invalid || isLoading || isLoadingDados">
+          <span *ngIf="!isLoading">{{ modoEdicao ? 'Salvar Alterações' : 'Cadastrar Recurso' }}</span>
+          <span *ngIf="isLoading">{{ modoEdicao ? 'Salvando...' : 'Cadastrando...' }}</span>
         </button>
       </div>
 

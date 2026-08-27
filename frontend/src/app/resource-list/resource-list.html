@@ -33,16 +33,22 @@
           <span class="resource-tipo" [class.tipo-lab]="recurso.tipo === 'LABORATORIO'" [class.tipo-equip]="recurso.tipo === 'EQUIPAMENTO'">
             {{ recurso.tipo === 'LABORATORIO' ? 'Laboratório' : 'Equipamento' }}
           </span>
-          <span class="resource-status">✅ Disponível</span>
+          <span *ngIf="!bloqueioDoRecurso(recurso.id)" class="resource-status">✅ Disponível</span>
+          <span *ngIf="bloqueioDoRecurso(recurso.id) as bloqueio" class="resource-maintenance">🔧 Em manutenção até {{ bloqueio.fim | date:'dd/MM' }}</span>
         </div>
         <h3>{{ recurso.nome }}</h3>
         <p class="resource-descricao">{{ recurso.descricao }}</p>
         <p class="resource-capacidade" *ngIf="recurso.capacidade != null">
           👥 Capacidade: {{ recurso.capacidade }}
         </p>
-        <a [routerLink]="['/reserva', recurso.id]" class="btn-reservar">Reservar</a>
+        <div class="resource-actions">
+          <a *ngIf="!bloqueioDoRecurso(recurso.id)" [routerLink]="['/reserva', recurso.id]" class="btn-reservar">Reservar</a>
+          <span *ngIf="bloqueioDoRecurso(recurso.id)" class="btn-reservar btn-reservar-disabled">Indisponível</span>
+          <a *ngIf="isAdmin()" [routerLink]="['/recursos', recurso.id, 'editar']" class="btn-editar">✏️ Editar</a>
+          <a *ngIf="isAdmin()" [routerLink]="['/recursos', recurso.id, 'reservas']" class="btn-ver-reservas">📋 Ver Reservas</a>
+        </div>
       </div>
     </div>
 
   </div>
-</div>
+</div>

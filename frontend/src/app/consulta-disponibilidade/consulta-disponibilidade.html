@@ -125,7 +125,9 @@
                     }
                   </td>
                   <td>
-                    @if (recurso.disponivel) {
+                    @if (bloqueioDoRecurso(recurso.id); as bloqueio) {
+                      <span class="status-manutencao">🔧 Em manutenção até {{ bloqueio.fim | date:'dd/MM' }}</span>
+                    } @else if (recurso.disponivel) {
                       <span class="status-disponivel">✅ Disponível</span>
                     } @else {
                       <span class="status-ocupado">❌ Ocupado</span>

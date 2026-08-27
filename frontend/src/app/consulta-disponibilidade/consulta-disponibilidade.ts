@@ -2,10 +2,12 @@ import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import {
   ResourceService,
   AvailabilityResponse,
 } from '../services/resource.service';
+import { ResourceBlockResponse, ResourceBlockService } from '../services/resource-block.service';
 
 @Component({
   selector: 'app-consulta-disponibilidade',
@@ -28,13 +30,16 @@ export class ConsultaDisponibilidade {
   carregando = false;
   erro = '';
   consultado = false;
+  bloqueiosPorRecurso = new Map<number, ResourceBlockResponse>();
+
+  private resourceBlockService = inject(ResourceBlockService);
 
   get disponiveis() {
-    return this.resultados.filter((r) => r.disponivel);
+    return this.resultados.filter((r) => r.disponivel && !this.bloqueioDoRecurso(r.id));
   }
 
   get indisponiveis() {
-    return this.resultados.filter((r) => !r.disponivel);
+    return this.resultados.filter((r) => !r.disponivel || this.bloqueioDoRecurso(r.id));
   }
 
   consultar() {
@@ -52,15 +57,33 @@ export class ConsultaDisponibilidade {
 
     this.carregando = true;
     this.resultados = [];
+    this.bloqueiosPorRecurso.clear();
 
     this.resourceService
       .consultarDisponibilidade(this.data, this.horarioInicio, this.horarioFim)
       .subscribe({
         next: (data) => {
           this.resultados = data;
-          this.consultado = true;
-          this.carregando = false;
-          this.cdr.detectChanges();
+          forkJoin(data.map((recurso) => this.resourceBlockService.listarBloqueios(recurso.id))).subscribe({
+            next: (bloqueios) => {
+              data.forEach((recurso, index) => {
+                const bloqueio = bloqueios[index].find((item) =>
+                  this.sobrepoePeriodo(item.inicio, item.fim, `${this.data}T${this.horarioInicio}`, `${this.data}T${this.horarioFim}`)
+                );
+                if (bloqueio) {
+                  this.bloqueiosPorRecurso.set(recurso.id, bloqueio);
+                }
+              });
+              this.consultado = true;
+              this.carregando = false;
+              this.cdr.detectChanges();
+            },
+            error: () => {
+              this.carregando = false;
+              this.erro = 'Erro ao consultar os bloqueios dos recursos. Tente novamente.';
+              this.cdr.detectChanges();
+            },
+          });
         },
         error: (err) => {
           this.carregando = false;
@@ -81,9 +104,19 @@ export class ConsultaDisponibilidade {
     this.resultados = [];
     this.erro = '';
     this.consultado = false;
+    this.bloqueiosPorRecurso.clear();
   }
 
   tipoLabel(tipo: string): string {
     return tipo === 'LABORATORIO' ? 'Laboratório' : 'Equipamento';
+  }
+
+  bloqueioDoRecurso(resourceId: number): ResourceBlockResponse | undefined {
+    return this.bloqueiosPorRecurso.get(resourceId);
+  }
+
+  private sobrepoePeriodo(inicio: string, fim: string, periodoInicio: string, periodoFim: string): boolean {
+    return new Date(inicio).getTime() < new Date(periodoFim).getTime()
+      && new Date(fim).getTime() > new Date(periodoInicio).getTime();
   }
 }

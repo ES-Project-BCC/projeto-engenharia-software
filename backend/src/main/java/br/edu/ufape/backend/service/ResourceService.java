@@ -13,17 +13,23 @@ import br.edu.ufape.backend.dto.ResourceResponse;
 import br.edu.ufape.backend.model.Resource;
 import br.edu.ufape.backend.model.enums.StatusReserva;
 import br.edu.ufape.backend.repository.ReservationRepository;
+import br.edu.ufape.backend.repository.ResourceBlockRepository;
 import br.edu.ufape.backend.repository.ResourceRepository;
+
+import java.time.LocalDateTime;
 
 @Service
 public class ResourceService {
 
         private final ResourceRepository resourceRepository;
         private final ReservationRepository reservationRepository;
+        private final ResourceBlockRepository resourceBlockRepository;
 
-        public ResourceService(ResourceRepository resourceRepository, ReservationRepository reservationRepository) {
+        public ResourceService(ResourceRepository resourceRepository, ReservationRepository reservationRepository,
+                        ResourceBlockRepository resourceBlockRepository) {
                 this.resourceRepository = resourceRepository;
                 this.reservationRepository = reservationRepository;
+                this.resourceBlockRepository = resourceBlockRepository;
         }
 
         public ResourceResponse criarRecurso(ResourceRequest request) {
@@ -40,6 +46,33 @@ public class ResourceService {
 
                 resource = resourceRepository.save(resource);
 
+                return toResponse(resource);
+        }
+
+        // edita os campos do recurso existente, se nao achar o id da 404
+        public ResourceResponse editarRecurso(Long id, ResourceRequest request) {
+                Resource resource = resourceRepository.findById(id)
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                                "Recurso não encontrado com id: " + id));
+
+                resource.setNome(request.getNome());
+                resource.setDescricao(request.getDescricao());
+                resource.setCapacidade(request.getCapacidade());
+                resource.setTipo(request.getTipo());
+                // so atualiza o status se vier preenchido, senao mantém o que tava antes
+                if (request.getStatusFuncionamento() != null) {
+                        resource.setStatusFuncionamento(request.getStatusFuncionamento());
+                }
+
+                resource = resourceRepository.save(resource);
+                return toResponse(resource);
+        }
+
+        // busca um recurso pelo id, usado pra preencher o form de edição no front
+        public ResourceResponse buscarPorId(Long id) {
+                Resource resource = resourceRepository.findById(id)
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                                "Recurso não encontrado com id: " + id));
                 return toResponse(resource);
         }
 
@@ -65,6 +98,11 @@ public class ResourceService {
                                 request.getHorarioFim(),
                                 statusesAtivos);
 
+                // integra bloqueios administrativos: recurso bloqueado aparece como indisponivel (#171)
+                LocalDateTime inicioDateTime = request.getData().atTime(request.getHorarioInicio());
+                LocalDateTime fimDateTime = request.getData().atTime(request.getHorarioFim());
+                List<Long> idsBloqueados = resourceBlockRepository.findBlockedResourceIds(inicioDateTime, fimDateTime);
+
                 return resourceRepository.findAll().stream()
                                 .map(resource -> new AvailabilityResponse(
                                                 resource.getId(),
@@ -72,7 +110,8 @@ public class ResourceService {
                                                 resource.getTipo(),
                                                 resource.getDescricao(),
                                                 resource.getCapacidade(),
-                                                !idsOcupados.contains(resource.getId())))
+                                                !idsOcupados.contains(resource.getId())
+                                                                && !idsBloqueados.contains(resource.getId())))
                                 .toList();
         }
 
