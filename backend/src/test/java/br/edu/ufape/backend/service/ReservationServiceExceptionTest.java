@@ -79,15 +79,20 @@ class ReservationServiceExceptionTest {
                 .tipo(TipoRecurso.LABORATORIO)
                 .build();
 
+        securityContextHolderMock = mockStatic(SecurityContextHolder.class);
+    }
+
+    /**
+     * Configura o SecurityContextHolder com um usuario autenticado valido.
+     * Deve ser chamado apenas nos testes que exigem autenticacao bem-sucedida.
+     */
+    private void configurarAuthValida() {
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getName()).thenReturn("joao@ufape.br");
         when(securityContext.getAuthentication()).thenReturn(authentication);
-
-        securityContextHolderMock = mockStatic(SecurityContextHolder.class);
         securityContextHolderMock.when(SecurityContextHolder::getContext).thenReturn(securityContext);
-
         when(userRepository.findByEmail("joao@ufape.br")).thenReturn(Optional.of(usuarioLogado));
     }
 
@@ -99,6 +104,8 @@ class ReservationServiceExceptionTest {
     @Test
     @DisplayName("Deve lancar 404 ao criar reserva com resource inexistente")
     void criarReserva_resourceInexistente_deveLancar404() {
+        configurarAuthValida();
+
         ReservationRequest request = new ReservationRequest(
                 999L,
                 LocalDate.of(2026, 9, 1),
@@ -118,6 +125,8 @@ class ReservationServiceExceptionTest {
     @Test
     @DisplayName("Deve lancar 409 CONFLICT quando horario ja esta ocupado por outra reserva")
     void criarReserva_horarioOcupado_deveLancar409() {
+        configurarAuthValida();
+
         ReservationRequest request = new ReservationRequest(
                 resource.getId(),
                 LocalDate.of(2026, 9, 1),
@@ -142,6 +151,8 @@ class ReservationServiceExceptionTest {
     @Test
     @DisplayName("Deve lancar 404 ao cancelar reserva inexistente")
     void cancelarReserva_inexistente_deveLancar404() {
+        configurarAuthValida();
+
         when(reservationRepository.findById(999L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> reservationService.cancelarReserva(999L))
@@ -153,6 +164,8 @@ class ReservationServiceExceptionTest {
     @Test
     @DisplayName("Deve lancar 409 ao tentar cancelar reserva RECUSADA")
     void cancelarReserva_recusada_deveLancar409() {
+        configurarAuthValida();
+
         Reservation reserva = Reservation.builder()
                 .id(50L)
                 .user(usuarioLogado)
@@ -197,6 +210,13 @@ class ReservationServiceExceptionTest {
     @Test
     @DisplayName("Deve lancar 404 quando email autenticado nao existe no banco")
     void getAuthenticatedUser_usuarioNaoEncontrado_deveLancar404() {
+        // Configura autenticacao valida no contexto, mas sobrescreve userRepository para retornar vazio
+        Authentication authentication = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getName()).thenReturn("joao@ufape.br");
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        securityContextHolderMock.when(SecurityContextHolder::getContext).thenReturn(securityContext);
         when(userRepository.findByEmail("joao@ufape.br")).thenReturn(Optional.empty());
 
         ReservationRequest request = new ReservationRequest(
