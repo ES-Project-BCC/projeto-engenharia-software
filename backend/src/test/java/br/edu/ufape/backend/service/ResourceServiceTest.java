@@ -136,6 +136,30 @@ class ResourceServiceTest {
         assertThat(result.get(0).isDisponivel()).isTrue();
     }
 
+    // teste 3b (US12): recurso com bloqueio administrativo ativo no período consultado
+    // deve aparecer como indisponível, mesmo sem nenhuma reserva conflitante
+    @Test
+    @DisplayName("Deve marcar recurso como indisponível quando há bloqueio administrativo no período (US12)")
+    void deveMarcarIndisponivel_quandoHaBloqueioAdministrativo() {
+        when(resourceRepository.findAll()).thenReturn(List.of(lab1, equip2));
+        // nenhuma reserva conflitante
+        when(reservationRepository.findConflictingResourceIds(eq(data), eq(inicio), eq(fim), anyList()))
+                .thenReturn(List.of());
+        // lab1 (id=1) está bloqueado administrativamente no período consultado
+        when(resourceBlockRepository.findBlockedResourceIds(any(), any()))
+                .thenReturn(List.of(1L));
+
+        AvailabilityRequest request = new AvailabilityRequest(data, inicio, fim);
+        List<AvailabilityResponse> result = resourceService.consultarDisponibilidade(request);
+
+        assertThat(result).hasSize(2);
+        AvailabilityResponse lab = result.stream().filter(r -> r.getId().equals(1L)).findFirst().orElseThrow();
+        AvailabilityResponse equip = result.stream().filter(r -> r.getId().equals(2L)).findFirst().orElseThrow();
+
+        assertThat(lab.isDisponivel()).isFalse();
+        assertThat(equip.isDisponivel()).isTrue();
+    }
+
     // teste 4: horario invalido, fim antes do inicio deve dar erro 400
     @Test
     @DisplayName("Deve lançar 400 BAD_REQUEST quando horarioFim <= horarioInicio")
