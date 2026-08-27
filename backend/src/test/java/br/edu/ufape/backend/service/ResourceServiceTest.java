@@ -233,4 +233,73 @@ class ResourceServiceTest {
         // lab1 foi criado com statusFuncionamento=true, e o request mandou null
         assertThat(response.getStatusFuncionamento()).isTrue();
     }
+
+    // ---- novos testes para subir cobertura ----
+
+    @Test
+    @DisplayName("Deve criar recurso com statusFuncionamento true quando request envia null")
+    void criarRecurso_statusNull_deveDefaultTrue() {
+        ResourceRequest request = new ResourceRequest("Lab Novo", "Desc", 20, TipoRecurso.LABORATORIO, null);
+
+        when(resourceRepository.save(any(Resource.class))).thenAnswer(inv -> {
+            Resource r = inv.getArgument(0);
+            r.setId(50L);
+            return r;
+        });
+
+        ResourceResponse response = resourceService.criarRecurso(request);
+
+        assertThat(response.getId()).isEqualTo(50L);
+        assertThat(response.getNome()).isEqualTo("Lab Novo");
+        assertThat(response.getStatusFuncionamento()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Deve criar recurso respeitando statusFuncionamento false")
+    void criarRecurso_statusFalse() {
+        ResourceRequest request = new ResourceRequest("Equip Quebrado", "Em manutencao", 1, TipoRecurso.EQUIPAMENTO, false);
+
+        when(resourceRepository.save(any(Resource.class))).thenAnswer(inv -> {
+            Resource r = inv.getArgument(0);
+            r.setId(51L);
+            return r;
+        });
+
+        ResourceResponse response = resourceService.criarRecurso(request);
+
+        assertThat(response.getStatusFuncionamento()).isFalse();
+        assertThat(response.getTipo()).isEqualTo(TipoRecurso.EQUIPAMENTO);
+    }
+
+    @Test
+    @DisplayName("Deve buscar recurso por id com sucesso")
+    void buscarPorId_sucesso() {
+        when(resourceRepository.findById(1L)).thenReturn(Optional.of(lab1));
+
+        ResourceResponse response = resourceService.buscarPorId(1L);
+
+        assertThat(response.getId()).isEqualTo(1L);
+        assertThat(response.getNome()).isEqualTo("Laboratório A");
+    }
+
+    @Test
+    @DisplayName("Deve lancar 404 ao buscar recurso inexistente")
+    void buscarPorId_inexistente_deveLancar404() {
+        when(resourceRepository.findById(999L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> resourceService.buscarPorId(999L))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("404");
+    }
+
+    @Test
+    @DisplayName("Deve listar todos os recursos")
+    void listarRecursos() {
+        when(resourceRepository.findAll()).thenReturn(List.of(lab1, equip2));
+
+        List<ResourceResponse> result = resourceService.listarRecursos();
+
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).getNome()).isEqualTo("Laboratório A");
+    }
 }
