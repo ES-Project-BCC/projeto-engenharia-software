@@ -18,18 +18,20 @@ import java.util.List;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    @Query("SELECT r.resource.id FROM Reservation r " +
-            "WHERE r.data = :data " +
-            "AND r.horarioInicio < :horarioFim " +
-            "AND r.horarioFim > :horarioInicio " +
-            "AND r.status IN :statusesAtivos")
-    List<Long> findConflictingResourceIds(
-            @Param("data") LocalDate data,
-            @Param("horarioInicio") LocalTime horarioInicio,
-            @Param("horarioFim") LocalTime horarioFim,
-            @Param("statusesAtivos") List<StatusReserva> statusesAtivos);
+        @Query("SELECT r.resource.id FROM Reservation r " +
+                        "WHERE r.data = :data " +
+                        "AND r.horarioInicio < :horarioFim " +
+                        "AND r.horarioFim > :horarioInicio " +
+                        "AND r.status IN :statusesAtivos")
+        List<Long> findConflictingResourceIds(
+                        @Param("data") LocalDate data,
+                        @Param("horarioInicio") LocalTime horarioInicio,
+                        @Param("horarioFim") LocalTime horarioFim,
+                        @Param("statusesAtivos") List<StatusReserva> statusesAtivos);
 
-    Page<Reservation> findByUserOrderByDataDescHorarioInicioDesc(User user, Pageable pageable);
+        Page<Reservation> findByUserOrderByDataDescHorarioInicioDesc(User user, Pageable pageable);
 
-    Page<Reservation> findByResourceOrderByDataDescHorarioInicioDesc(Resource resource, Pageable pageable);
+        Page<Reservation> findByResourceOrderByDataDescHorarioInicioDesc(Resource resource, Pageable pageable);
+
+        List<Reservation> findByStatusInAndData(List<StatusReserva> statuses, LocalDate data);
 }

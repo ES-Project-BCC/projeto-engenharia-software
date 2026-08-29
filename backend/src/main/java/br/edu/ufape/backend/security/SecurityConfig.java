@@ -25,7 +25,10 @@ import br.edu.ufape.backend.service.UserDetailsServiceImpl;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /** Nome da role de administrador (hasRole adiciona o prefixo ROLE_ automaticamente). */
+    /**
+     * Nome da role de administrador (hasRole adiciona o prefixo ROLE_
+     * automaticamente).
+     */
     private static final String ROLE_ADMIN = "ADMIN";
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -113,6 +116,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/resource-blocks").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/resource-blocks").hasRole(ROLE_ADMIN)
                         .requestMatchers(HttpMethod.DELETE, "/api/resource-blocks/**").hasRole(ROLE_ADMIN)
+                        .requestMatchers("/api/notifications/**").authenticated()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated())
 
