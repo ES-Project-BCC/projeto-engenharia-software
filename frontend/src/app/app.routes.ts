@@ -10,6 +10,7 @@ import { ConsultaDisponibilidade } from './consulta-disponibilidade/consulta-dis
 import { MinhasReservas } from './minhas-reservas/minhas-reservas';
 import { ReservasPorRecurso } from './reservas-por-recurso/reservas-por-recurso';
 import { BloquearRecurso } from './bloquear-recurso/bloquear-recurso';
+import { RelatorioUtilizacao } from './relatorio-utilizacao/relatorio-utilizacao';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
 
@@ -33,6 +34,12 @@ export const routes: Routes = [
   {
     path: 'bloquear-recurso',
     component: BloquearRecurso,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'relatorio-utilizacao',
+    component: RelatorioUtilizacao,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ADMIN'] }
   },

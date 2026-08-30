@@ -1,0 +1,98 @@
+<main class="page-container">
+  <section class="report-card" aria-labelledby="report-title">
+    <header class="card-header">
+      <a routerLink="/admin" class="btn-back">Voltar ao painel</a>
+      <div class="header-content">
+        <h1 id="report-title">Relatório de Utilização</h1>
+        <p>Acompanhe a demanda dos recursos em um período.</p>
+      </div>
+    </header>
+
+    <form class="report-form" (ngSubmit)="consultar()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dataInicio">Data de início <span class="required">*</span></label>
+          <input id="dataInicio" type="date" [(ngModel)]="dataInicio" name="dataInicio" required />
+        </div>
+        <div class="form-group">
+          <label for="dataFim">Data de fim <span class="required">*</span></label>
+          <input id="dataFim" type="date" [(ngModel)]="dataFim" name="dataFim" required />
+        </div>
+      </div>
+
+      @if (erro) {
+        <div class="alert alert-error" role="alert">{{ erro }}</div>
+      }
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="limpar()">Limpar</button>
+        <button type="submit" class="btn-primary" [disabled]="carregando">
+          {{ carregando ? 'Gerando relatório...' : 'Gerar relatório' }}
+        </button>
+      </div>
+    </form>
+
+    @if (consultado && relatorio) {
+      <div class="results">
+        <section class="summary-grid" aria-label="Resumo de utilização">
+          <article class="summary-card most-used">
+            <span class="summary-label">Recurso mais utilizado</span>
+            <strong>{{ relatorio.recursoMaisUtilizado?.recursoNome ?? 'Sem reservas' }}</strong>
+            <span>{{ relatorio.recursoMaisUtilizado?.totalReservas ?? 0 }} reservas</span>
+          </article>
+          <article class="summary-card least-used">
+            <span class="summary-label">Recurso menos utilizado</span>
+            <strong>{{ relatorio.recursoMenosUtilizado?.recursoNome ?? 'Sem reservas' }}</strong>
+            <span>{{ relatorio.recursoMenosUtilizado?.totalReservas ?? 0 }} reservas</span>
+          </article>
+          <article class="summary-card total-reservations">
+            <span class="summary-label">Total no período</span>
+            <strong>{{ relatorio.totalReservas }}</strong>
+            <span>reservas realizadas</span>
+          </article>
+        </section>
+
+        <section class="data-section" aria-labelledby="resources-title">
+          <h2 id="resources-title">Reservas por recurso</h2>
+          @if (reservasPorRecurso.length > 0) {
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr><th>Posição</th><th>Recurso</th><th>Reservas</th></tr>
+                </thead>
+                <tbody>
+                  @for (recurso of reservasPorRecurso; track recurso.recursoId; let indice = $index) {
+                    <tr>
+                      <td>{{ indice + 1 }}</td>
+                      <td class="resource-name">{{ recurso.recursoNome }}</td>
+                      <td>{{ recurso.totalReservas }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p class="empty-state">Não há reservas no período selecionado.</p>
+          }
+        </section>
+
+        <section class="data-section" aria-labelledby="weekdays-title">
+          <h2 id="weekdays-title">Distribuição por dia da semana</h2>
+          @if (relatorio.distribuicaoPorDiaSemana.length > 0) {
+            <div class="weekday-chart">
+              @for (dia of relatorio.distribuicaoPorDiaSemana; track dia.diaSemana) {
+                <div class="weekday-row">
+                  <span class="weekday-label">{{ dia.diaSemana }}</span>
+                  <div class="bar-track" aria-hidden="true"><span class="bar-fill" [style.width]="larguraBarra(dia.totalReservas)"></span></div>
+                  <strong>{{ dia.totalReservas }}</strong>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="empty-state">Não há dados de distribuição para o período selecionado.</p>
+          }
+        </section>
+      </div>
+    }
+  </section>
+</main>
