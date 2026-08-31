@@ -38,7 +38,7 @@ export const routes: Routes = [
     data: { roles: ['ADMIN'] }
   },
   {
-    path: 'relatorio-utilizacao',
+    path: 'relatorios',
     component: RelatorioUtilizacao,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ADMIN'] }
