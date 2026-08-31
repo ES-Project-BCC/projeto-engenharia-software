@@ -1,0 +1,143 @@
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  background-color: white;
+  border-bottom: 1px solid #eaeaea;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.logo a {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.notification-wrapper {
+  position: relative;
+}
+
+.btn-bell {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  position: relative;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.btn-bell:hover {
+  background-color: #f3f4f6;
+}
+
+.badge {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background-color: #ef4444;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 14px;
+  text-align: center;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.5rem;
+  width: 320px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid #eaeaea;
+  overflow: hidden;
+  z-index: 101;
+}
+
+.dropdown-header {
+  padding: 1rem;
+  border-bottom: 1px solid #eaeaea;
+  background-color: #f9fafb;
+}
+
+.dropdown-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.dropdown-body {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.no-notifications {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.notification-item {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+  background-color: #f9fafb;
+}
+
+.notification-item.unread {
+  background-color: #eff6ff;
+  border-left: 3px solid #3b82f6;
+}
+
+.notification-item p {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.notification-item .time {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.dropdown-footer {
+  padding: 0.5rem;
+  border-top: 1px solid #eaeaea;
+  text-align: center;
+}
+
+.dropdown-footer button {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.dropdown-footer button:hover {
+  text-decoration: underline;
+}

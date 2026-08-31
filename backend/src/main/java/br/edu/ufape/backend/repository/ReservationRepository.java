@@ -4,6 +4,7 @@ import br.edu.ufape.backend.model.Reservation;
 import br.edu.ufape.backend.model.Resource;
 import br.edu.ufape.backend.model.enums.StatusReserva;
 import br.edu.ufape.backend.model.User;
+import br.edu.ufape.backend.repository.projection.ResourceUsageProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,4 +35,17 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
         Page<Reservation> findByResourceOrderByDataDescHorarioInicioDesc(Resource resource, Pageable pageable);
 
         List<Reservation> findByStatusInAndData(List<StatusReserva> statuses, LocalDate data);
+
+        @Query("SELECT r.resource.id AS resourceId, r.resource.nome AS resourceNome, COUNT(r) AS totalReservas " +
+               "FROM Reservation r " +
+               "WHERE r.data BETWEEN :dataInicio AND :dataFim " +
+               "AND r.status <> br.edu.ufape.backend.model.enums.StatusReserva.CANCELADA " +
+               "AND r.status <> br.edu.ufape.backend.model.enums.StatusReserva.RECUSADA " +
+               "GROUP BY r.resource.id, r.resource.nome " +
+               "ORDER BY totalReservas DESC")
+        List<ResourceUsageProjection> countReservationsByResource(
+                @Param("dataInicio") LocalDate dataInicio, @Param("dataFim") LocalDate dataFim);
+
+        List<Reservation> findByDataBetweenAndStatusNotIn(LocalDate dataInicio, LocalDate dataFim, List<StatusReserva> statuses);
+
 }

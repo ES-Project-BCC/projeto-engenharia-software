@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
@@ -31,6 +31,7 @@ export class CadastroRecurso implements OnInit {
   private resourceService = inject(ResourceService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
 
   get descricaoLength(): number {
     return this.recursoData.descricao?.length ?? 0;
@@ -59,6 +60,7 @@ export class CadastroRecurso implements OnInit {
           tipo: recurso.tipo,
           statusFuncionamento: recurso.statusFuncionamento,
         };
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoadingDados = false;
@@ -68,6 +70,7 @@ export class CadastroRecurso implements OnInit {
           this.errorMessage = 'Erro ao carregar os dados do recurso.';
         }
         console.error('Erro ao carregar recurso para edição', err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -83,6 +86,7 @@ export class CadastroRecurso implements OnInit {
         next: (response) => {
           this.isLoading = false;
           this.successMessage = `Recurso "${response.nome}" atualizado com sucesso!`;
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.isLoading = false;
@@ -96,6 +100,7 @@ export class CadastroRecurso implements OnInit {
             this.errorMessage = 'Erro ao atualizar recurso. Tente novamente mais tarde.';
           }
           console.error('Erro ao editar recurso', err);
+          this.cdr.detectChanges();
         },
       });
     } else {
@@ -112,6 +117,7 @@ export class CadastroRecurso implements OnInit {
             tipo: 'LABORATORIO',
             statusFuncionamento: true,
           };
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.isLoading = false;
@@ -123,6 +129,7 @@ export class CadastroRecurso implements OnInit {
             this.errorMessage = 'Erro ao cadastrar recurso. Tente novamente mais tarde.';
           }
           console.error('Erro ao cadastrar recurso', err);
+          this.cdr.detectChanges();
         },
       });
     }

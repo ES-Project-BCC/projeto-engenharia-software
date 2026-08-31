@@ -28,6 +28,13 @@ export class ResourceList implements OnInit {
       next: (response) => {
         // só mostra os recursos que estão funcionando (disponíveis pra reserva)
         this.recursos = response.filter(r => r.statusFuncionamento);
+        
+        if (this.recursos.length === 0) {
+            this.isLoading = false;
+            this.cdr.detectChanges();
+            return;
+        }
+
         forkJoin(this.recursos.map((recurso) => this.resourceBlockService.listarBloqueios(recurso.id))).subscribe({
           next: (bloqueios) => {
             const agora = Date.now();

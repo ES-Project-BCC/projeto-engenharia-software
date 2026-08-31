@@ -64,6 +64,14 @@ export class ConsultaDisponibilidade {
       .subscribe({
         next: (data) => {
           this.resultados = data;
+          
+          if (data.length === 0) {
+            this.consultado = true;
+            this.carregando = false;
+            this.cdr.detectChanges();
+            return;
+          }
+
           forkJoin(data.map((recurso) => this.resourceBlockService.listarBloqueios(recurso.id))).subscribe({
             next: (bloqueios) => {
               data.forEach((recurso, index) => {

@@ -13,6 +13,7 @@ import { BloquearRecurso } from './bloquear-recurso/bloquear-recurso';
 import { RelatorioUtilizacao } from './relatorio-utilizacao/relatorio-utilizacao';
 import { authGuard } from './guards/auth.guard';
 import { roleGuard } from './guards/role.guard';
+import { TodasNotificacoesComponent } from './todas-notificacoes/todas-notificacoes';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -73,6 +74,11 @@ export const routes: Routes = [
   {
     path: 'minhas-reservas',
     component: MinhasReservas,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'notificacoes',
+    component: TodasNotificacoesComponent,
     canActivate: [authGuard]
   },
   // rota de reservas por recurso (somente admin)

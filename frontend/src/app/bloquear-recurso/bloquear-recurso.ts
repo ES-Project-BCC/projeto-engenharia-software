@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ResourceBlockRequest, ResourceBlockService } from '../services/resource-block.service';
@@ -21,6 +21,7 @@ export class BloquearRecurso implements OnInit {
 
   private resourceService = inject(ResourceService);
   private resourceBlockService = inject(ResourceBlockService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.carregarRecursos();
@@ -36,6 +37,7 @@ export class BloquearRecurso implements OnInit {
         this.isLoading = false;
         this.successMessage = `Recurso "${bloqueio.resourceNome}" bloqueado com sucesso.`;
         this.bloqueioData = this.novoBloqueio();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
@@ -49,6 +51,7 @@ export class BloquearRecurso implements OnInit {
           this.errorMessage = 'Erro ao bloquear recurso. Tente novamente mais tarde.';
         }
         console.error('Erro ao criar bloqueio', err);
+        this.cdr.detectChanges();
       },
     });
   }
@@ -59,11 +62,13 @@ export class BloquearRecurso implements OnInit {
       next: (recursos) => {
         this.recursos = recursos;
         this.isLoadingRecursos = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoadingRecursos = false;
         this.errorMessage = 'Erro ao carregar os recursos. Tente novamente mais tarde.';
         console.error('Erro ao carregar recursos para bloqueio', err);
+        this.cdr.detectChanges();
       },
     });
   }

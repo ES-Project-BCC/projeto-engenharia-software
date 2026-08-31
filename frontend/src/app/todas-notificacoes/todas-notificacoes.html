@@ -1,0 +1,34 @@
+<div class="notifications-container">
+  <div class="card">
+    <div class="header">
+      <h2>Todas as Notificações</h2>
+    </div>
+    
+    <div class="body">
+      <div *ngIf="notificacoes.length === 0" class="no-data">
+        Você não tem nenhuma notificação.
+      </div>
+      
+      <div class="list">
+        <div *ngFor="let notif of notificacoes" 
+             class="item" 
+             [class.unread]="!notif.lida"
+             (click)="marcarComoLida(notif)">
+          <div class="content">
+            <p>{{ notif.mensagem }}</p>
+            <span class="time">{{ notif.criadaEm | date:'medium' }}</span>
+          </div>
+          <div class="status">
+            <span class="badge" *ngIf="!notif.lida">Nova</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer" *ngIf="totalPages > 1">
+      <button (click)="prevPage()" [disabled]="page === 0" class="btn-page">Anterior</button>
+      <span class="page-info">Página {{ page + 1 }} de {{ totalPages }}</span>
+      <button (click)="nextPage()" [disabled]="page >= totalPages - 1" class="btn-page">Próxima</button>
+    </div>
+  </div>
+</div>
